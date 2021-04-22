@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'novel',
+    'star_ratings'
 ]
 
 MIDDLEWARE = [
@@ -69,7 +71,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cHowTVbooks.wsgi.application'
 
-
+AUTH_USER_MODEL = 'novel.User'
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -99,6 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
