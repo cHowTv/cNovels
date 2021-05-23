@@ -34,4 +34,17 @@ class SignUpForm(UserCreationForm):
             raise forms.ValidationError('Enter same Password')
         return pass1
 
-    
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=30, required=True,
+     help_text='Required field.')
+
+    password = forms.CharField(max_length=30, required=True,
+     help_text='Required field.', widget=forms.PasswordInput())
+
+
+#creates new genre
+
+class GenreForm(ModelForm):
+    class Meta:
+        model = Genre
+        fields = ['name']

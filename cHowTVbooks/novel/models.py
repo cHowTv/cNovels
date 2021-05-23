@@ -61,14 +61,24 @@ def compress (bookImage):
 # Create your models here.
 class Genre(models.Model):
     """Model representing a book genre."""
-    name = models.CharField(max_length=200, help_text='Enter a book genre (e.g. Science Fiction)')
+    name = models.CharField(max_length=200,
+     help_text='Enter a book genre (e.g. Science Fiction)')
     
     def __str__(self):
         """String for representing the Model object."""
         return f"{self.name}"
 
+class Chapters(models.Model):
+    title = models.PositiveIntegerField()
+    book = models.RichTextField()
+
+
+
+
 class Novel(models.Model):
      title = models.CharField(max_length=200,blank=True,unique=True, null=True)
+      #chapters 
+     chapter = models.ForeignKey(Chapters,on_delete=models.SET_NULL,blank=True, null=True)
 
      slug = models.SlugField(max_length=200,unique=True)
     # Foreign Key used because book can only have one author, but authors can have multiple books
@@ -123,6 +133,7 @@ class Poems(models.Model):
      title = models.CharField(max_length=200,blank=True,unique=True, null=True)
 
      slug = models.SlugField(max_length=200,unique=True)
+    
     # Foreign Key used because book can only have one author, but authors can have multiple books
     # Author as a string rather than object because it hasn't been declared yet in the file
      author = models.ForeignKey('Profile', on_delete=models.SET_NULL,blank=True, null=True)
@@ -211,7 +222,7 @@ class Audio(models.Model):
      date_uploaded = models.DateField(default = timezone.now)
 
     #verify and default save later
-     AudioImage = models.FileField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
+     bookImage = models.FileField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
      
      created_author = models.ForeignKey( settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='audiocreator')
      
@@ -243,7 +254,8 @@ class User(AbstractUser):
     recently_viewed_novels = models.ForeignKey(Novel,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_novels')
     recently_viewed_audios = models.ForeignKey(Audio,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_audios')
     saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
-
+    last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
+    is_author = models.BooleanField(default=False)
 #weekly shoutouts , these should be based on "most rated" 
 
 class Weekly(models.Model):
