@@ -1,10 +1,9 @@
 
-from .form import *
+from .forms import *
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import View, UpdateView
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required , user_passes_test
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
@@ -12,6 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from novel.tokens import account_activation_token
+from django.http import HttpResponseForbidden
 # Create your views here.
 
 #create login,logout,register view 
@@ -60,11 +60,11 @@ def register(request):
 
 def activateAccount(request,uidb64, token):
     if request.GET:
-         try:
+        try:
             uid = force_text(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
+             user = None
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
@@ -159,4 +159,11 @@ def search(request):
 
 @login_required(login_url="/login")
 def add_genre(request):
+    if request.POST:
+        form  =  GenreForm(request.POST)
+        if form.is_valid():
+            form.save()
+
+    return HttpResponseForbidden()
+        
     

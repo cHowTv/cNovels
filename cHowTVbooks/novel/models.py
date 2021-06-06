@@ -70,7 +70,7 @@ class Genre(models.Model):
 
 class Chapters(models.Model):
     title = models.PositiveIntegerField()
-    book = models.RichTextField()
+    book = RichTextField()
 
 
 
