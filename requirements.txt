@@ -4,4 +4,4 @@ gunicorn
 psycopg2
 djangorestframework
 django-ckeditor
- django-star-ratings
+django-star-ratings
