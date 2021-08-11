@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+     'rest_framework',
     'novel',
+    'ckeditor',
     'star_ratings'
 ]
 
@@ -122,3 +124,53 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+ 
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_CONFIGS = {
+    'default':
+    {
+        'toolbar':'Custom',
+        'height': 500,
+       
+        
+        'toolbar_Custom': [
+            ['Unlink', 'Link' , 'Image'],
+            ['Styles', 'Format', 'Bold', 'Italic', 'SpellChecker', 'Undo', 'Redo'],
+            ['Smiley', 'SpecialChar'],
+            ['CodeSnippet', 'about']
+        ],
+        'extraPlugins':'codesnippet'
+    },
+    'novellas':{
+        'toolbar':'Custom',
+        'height': 500,
+        'width': '105%',
+        'display': 'inline-block',
+        'placeholder': 'maximize to start writing',
+        
+        'toolbar_Custom': [
+          
+            ['Styles', 'Format', 'Bold', 'Italic', 'SpellChecker', 'Undo', 'Redo'],
+            ['Smiley', 'SpecialChar'],
+            ['Indent', 'Outdent','Maximize'],
+            ['JustifyLeft', 'JustifyCenter','JustifyRight','JustifyBlock']
+        ],
+        
+    }
+}
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
