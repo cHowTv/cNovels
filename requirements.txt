@@ -3,3 +3,5 @@ dj_database_url
 gunicorn
 psycopg2
 djangorestframework
+django-ckeditor
+ django-star-ratings
