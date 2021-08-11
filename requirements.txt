@@ -5,3 +5,5 @@ psycopg2
 djangorestframework
 django-ckeditor
 django-star-ratings
+pillow
+whitenoise
