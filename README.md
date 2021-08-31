@@ -7,4 +7,4 @@ Building towards this UI by Haljordan ([twitter!](https://twitter.com/itzhaljord
 
 ![UI Image](https://github.com/cHowTv/cNovels/blob/master/Screenshot%20from%202021-06-18%2017-58-38.png)
 
-![UI Image2](https://github.com/proflamyt/cNovels/blob/master/Screenshot%20from%202021-06-18%2017-58-38.png)
+![UI Image2](https://github.com/cHowTv/cNovels/blob/master/Screenshot%20from%202021-06-18%2017-58-20.png)
