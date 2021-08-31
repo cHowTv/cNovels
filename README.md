@@ -5,6 +5,6 @@ BookShy is an opensource project written in django where authors get to upload t
 
 Building towards this UI by Haljordan ([twitter!](https://twitter.com/itzhaljordan)   [instagram](https://instagram.com/sketchmonstr) )
 
-![UI Image](https://github.com/proflamyt/cNovels/blob/master/Screenshot%20from%202021-06-18%2017-58-20.png)
+![UI Image](https://github.com/cHowTv/cNovels/blob/master/Screenshot%20from%202021-06-18%2017-58-38.png)
 
 ![UI Image2](https://github.com/proflamyt/cNovels/blob/master/Screenshot%20from%202021-06-18%2017-58-38.png)
