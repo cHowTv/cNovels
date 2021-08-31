@@ -8,6 +8,7 @@ from PIL import Image
 import magic
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericRelation
+from rest_framework.exceptions import bad_request
 from star_ratings.models import Rating
 import sys
 from django.utils.text import slugify
@@ -69,16 +70,22 @@ class Genre(models.Model):
         return f"{self.name}"
 
 class Chapters(models.Model):
-    title = models.PositiveIntegerField()
-    book = RichTextField()
+    title = models.CharField(max_length=200,blank=True,unique=True, null=True)
+    number = models.PositiveIntegerField(blank=True, null=True)
+    book = RichTextField(config_name='novellas')
+    novel = models.ForeignKey('Novel',on_delete=models.SET_NULL,blank=True, null=True)
+
+def validate_chapter(sender, instance, **kwargs):
+    instance.number = Chapters.objects.count()+1
 
 
+
+pre_save.connect(validate_chapter, sender=Chapters)
 
 
 class Novel(models.Model):
      title = models.CharField(max_length=200,blank=True,unique=True, null=True)
-      #chapters 
-     chapter = models.ForeignKey(Chapters,on_delete=models.SET_NULL,blank=True, null=True)
+
 
      slug = models.SlugField(max_length=200,unique=True)
     # Foreign Key used because book can only have one author, but authors can have multiple books
@@ -98,29 +105,23 @@ class Novel(models.Model):
      
      #if authors were to upload books if already written
      #will be parsed and restored into chapters later  
-     bookFile = models.FileField(blank=False,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size])
+     bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
      
-     #if authors were to write instead of upload
-     story = RichTextField(config_name='novellas')
 
      date_uploaded = models.DateField(default = timezone.now)
 
-     bookImage = models.ImageField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
+     bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
      
-     created_author = models.ForeignKey( settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='created')
+     created_author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='created')
      
      ratings = GenericRelation(Rating, related_query_name='novels_ratings')
 
+     def save(self, *args,  **kwargs ):
+        self.slug = slugify(self.title)
+        super(Novel, self).save(*args, **kwargs)
 
 
-
-    
-  
-
-     def save(self, *args, **kwargs):
-         
-        self.bookImage = compress(self.bookImage)
-        super(Novel, self).save( *args,**kwargs )
+    #use django signal for save  
 
 
         
@@ -179,7 +180,7 @@ class Profile(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) 
     
-    profile_image = models.ImageField(default ='default_profile.jpg', upload_to='profile/images' , validators = [valid_image,valid_image_mimetype,valid_size])   
+    profile_image = models.ImageField(blank=True, upload_to='profile/images' , validators = [valid_image,valid_image_mimetype,valid_size])   
 
     about_me = models.TextField(blank=True, null=True)
 
@@ -189,12 +190,7 @@ class Profile(models.Model):
 
     
 
-    def save(self, *args, **kwargs):
-         if not self.id:
-            self.profile_image = compress(self.profile_image)
-         super(Profile, self).save(*args,**kwargs)
 
-        
     def __str__(self):
         return f"{self.user}"
 
@@ -249,9 +245,9 @@ class Audio(models.Model):
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     favorite = models.ManyToManyField(Novel,blank=True)
-    saved_novels = models.ForeignKey(Novel,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_novel')
+    saved_novels = models.ManyToManyField(Novel,blank=True ,null=True,  related_name='saved_novel')
     saved_audios =  models.ForeignKey(Audio,blank=True, null=True,on_delete=models.SET_NULL, related_name='saved_audios')
-    recently_viewed_novels = models.ForeignKey(Novel,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_novels')
+    recently_viewed_novels = models.ManyToManyField(Novel,blank=True,null=True,  related_name='recently_viewed_novels')
     recently_viewed_audios = models.ForeignKey(Audio,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_audios')
     saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
@@ -265,4 +261,4 @@ class Weekly(models.Model):
     special_feature = models.ForeignKey(Novel,blank=True, on_delete=models.CASCADE, related_name='weekspecial')
     authors_of_week = models.ForeignKey(Profile,blank=True, on_delete=models.CASCADE, related_name='weekauthors')
     def __str__(self):
-        return f"{self.novels_of_week}"
+        return f"{self.novels_of_week}" 
