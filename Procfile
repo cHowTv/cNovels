@@ -1,1 +1,1 @@
-web: gunicorn cHowTVbooks.cHowTVbooks.wsgi --log-file -
+web: gunicorn cHowTVbooks.wsgi --log-file -
