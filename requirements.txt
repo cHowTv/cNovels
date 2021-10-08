@@ -8,3 +8,4 @@ django-star-ratings
 pillow
 whitenoise
 python-magic
+django-utils-six
