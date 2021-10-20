@@ -17,6 +17,15 @@ class NovelRealease(generics.ListAPIView):
     
 
 class NovelSearchView(generics.ListAPIView):
+    """
+    Displays all novels with just 'get request' , filters the searches with ?search query ;
+    e.g
+     /novel-search?search=ola 
+    
+    will return all novel objects relating to ola
+    
+    
+    """
     queryset = Novel.objects.all()
     serializer_class = NovelSerializer
     filter_backends = [filters.SearchFilter]
@@ -26,7 +35,16 @@ class NovelSearchView(generics.ListAPIView):
         return user.recently_viewed_novels.all()
 
 
-class PoemsListView(generics.ListAPIView):
+class PoemsSearchView(generics.ListAPIView):
+    """
+    Displays all poems with just 'get request' , filters the searches with ?search query ;
+    e.g
+     /poem-search?search=ola 
+    
+    will return all poems objects relating to ola
+    
+    
+    """
     queryset = Poems.objects.all()
     serializer_class = PoemSerializer
     filter_backends = [filters.SearchFilter]
@@ -50,6 +68,10 @@ class PoemsListView(generics.ListAPIView):
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 def home(request):
+    '''
+    Displays Genres 
+    
+    '''
     weekly = Weekly.objects.all()
     week_serializer = WeeklySerializer(weekly, many=True)
     genres  =  Genre.objects.all()
