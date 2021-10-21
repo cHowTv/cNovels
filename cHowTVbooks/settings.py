@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 import os
 import django_heroku
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'rest_framework',
+    'rest_framework',
     'novel',
     'ckeditor',
     'star_ratings'
@@ -132,8 +133,7 @@ STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication'
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated'
@@ -180,3 +180,10 @@ CKEDITOR_CONFIGS = {
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 django_heroku.settings(locals())
+
+
+SIMPLE_JWT = {
+        'AUTH_HEADER_TYPES': ('JWT',),
+        'REFRESH_TOKEN_LIFETIME':   timedelta(days=15),
+        'ROTATE_REFRESH_TOKENS': True,
+}

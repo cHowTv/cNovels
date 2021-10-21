@@ -1,3 +1,9 @@
+from rest_framework import generics, serializers
+from rest_framework import permissions
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer, RegisterSerializer
+
 from .forms import *
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -95,3 +101,25 @@ def logout_user(request):
     if request.user.is_authenticated:
         logout(request)
     return redirect("/")
+
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    """
+    login by sending a post request containing username and password to login/
+
+    
+    """
+    permission_classes = (AllowAny,)
+    serializer_class = MyTokenObtainPairSerializer
+
+
+class RegisterView(generics.CreateAPIView):
+    """
+
+    Register with your username and password
+    
+    """
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
