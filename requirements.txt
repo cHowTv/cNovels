@@ -9,3 +9,4 @@ pillow
 whitenoise
 python-magic
 django-utils-six
+djangorestframework_simplejwt
