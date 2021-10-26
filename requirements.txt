@@ -10,3 +10,6 @@ whitenoise
 python-magic
 django-utils-six
 djangorestframework_simplejwt
+dj-rest-auth 
+django-allauth 
+django-cors-headers

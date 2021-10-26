@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.fields.related import ManyToManyField
 from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
@@ -245,9 +246,9 @@ class Audio(models.Model):
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     favorite = models.ManyToManyField(Novel,blank=True)
-    saved_novels = models.ManyToManyField(Novel,blank=True ,null=True,  related_name='saved_novel')
+    saved_novels = models.ManyToManyField(Novel,blank=True ,  related_name='saved_novel')
     saved_audios =  models.ForeignKey(Audio,blank=True, null=True,on_delete=models.SET_NULL, related_name='saved_audios')
-    recently_viewed_novels = models.ManyToManyField(Novel,blank=True,null=True,  related_name='recently_viewed_novels')
+    recently_viewed_novels = models.ManyToManyField(Novel,blank=True,  related_name='recently_viewed_novels')
     recently_viewed_audios = models.ForeignKey(Audio,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_audios')
     saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
@@ -261,4 +262,36 @@ class Weekly(models.Model):
     special_feature = models.ForeignKey(Novel,blank=True, on_delete=models.CASCADE, related_name='weekspecial')
     authors_of_week = models.ForeignKey(Profile,blank=True, on_delete=models.CASCADE, related_name='weekauthors')
     def __str__(self):
-        return f"{self.novels_of_week}" 
+        return f"{self.novels_of_week}"
+
+class Room(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    admins = models.ManyToManyField(User,related_name='admins' )
+    name = models.CharField(max_length=100)
+    discription = models.TextField()
+    private = models.BooleanField(default=False)
+
+class Message(models.Model):
+     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')        
+     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')        
+     message = models.CharField(max_length=1200)
+     timestamp = models.DateTimeField(auto_now_add=True)
+     is_read = models.BooleanField(default=False)
+     def __str__(self):
+           return self.message
+     class Meta:
+           ordering = ('timestamp',)
+class Event(models.Model):
+    name = models.CharField(max_length=100)
+    time  = models.DateField()
+
+    def __str__(self):
+        return self.name
+
+class GroupChat(models.Model):
+    citizens = models.ManyToManyField(User)
+    room = models.OneToOneField(Room, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event,null=True,blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self) :
+        return f'group {self.room}'

@@ -44,10 +44,19 @@ INSTALLED_APPS = [
     'rest_framework',
     'novel',
     'ckeditor',
-    'star_ratings'
+    'star_ratings',
+    'corsheaders',
+     "dj_rest_auth",
+    "allauth",
+    "allauth.account",
+    "django.contrib.sites",
+    "dj_rest_auth.registration",
+    "allauth.socialaccount",
+   "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -133,7 +142,9 @@ STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated'
@@ -186,4 +197,23 @@ SIMPLE_JWT = {
         'AUTH_HEADER_TYPES': ('JWT',),
         'REFRESH_TOKEN_LIFETIME':   timedelta(days=15),
         'ROTATE_REFRESH_TOKENS': True,
+        'BLACKLIST_AFTER_ROTATION': True, 
+        'UPDATE_LAST_LOGIN': True,
 }
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+REST_USE_JWT = True
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/login'
