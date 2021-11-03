@@ -253,6 +253,8 @@ class User(AbstractUser):
     saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
     is_author = models.BooleanField(default=False)
+    def __str__(self) -> str:
+        return self.username
 #weekly shoutouts , these should be based on "most rated" 
 
 class Weekly(models.Model):
@@ -265,7 +267,7 @@ class Weekly(models.Model):
         return f"{self.novels_of_week}"
 
 class Room(models.Model):
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     admins = models.ManyToManyField(User,related_name='admins' )
     name = models.CharField(max_length=100)
     discription = models.TextField()
@@ -293,5 +295,7 @@ class GroupChat(models.Model):
     room = models.OneToOneField(Room, on_delete=models.CASCADE)
     event = models.ForeignKey(Event,null=True,blank=True, on_delete=models.SET_NULL)
 
+
+
     def __str__(self) :
-        return f'group {self.room}'
+        return f'group {self.room.name}'

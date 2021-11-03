@@ -1,88 +1,140 @@
+#join group api
 
-from .forms import *
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import View, UpdateView
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required , user_passes_test
-from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from django.template.loader import render_to_string
-#from novel.tokens import account_activation_token
-from django.http import HttpResponseForbidden
-# Create your views here.
-
-#create login,logout,register view 
-#then create front page
-
+#Create Group
+from os import name
+from django.db.models import query
+from django.http.response import Http404
+from rest_framework import serializers
+from rest_framework.permissions import IsAuthenticated
+from authentication.permissions import AuthorOrReadOnly, GroupOwners
+from novel.models import GroupChat, Room
+from rest_framework.response import Response
+from novel.serializers import GroupMessageSerializer, JoinGroupSerializer, RoomSerializer
+import redis
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
-#create authors priviledge (user will be able to perform some privilege actions )
-def is_author(user):
-    return user.is_author 
+# Connect to our Redis instance
+redis_instance = redis.StrictRedis(host='172.26.255.129', 
+  port= 6379,
+                              #    port=settings.REDIS_PORT,
+                               db=0)
+#create group 
+class GroupCreateAPIView(CreateAPIView):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+    permission_classes = [AuthorOrReadOnly]
 
-
-
-
-@login_required(login_url="/login/")
-def home(request):
-    week = Weekly.objects.all()
-    genres  =  Genre.objects.all()
-    return render(request, "bookshy/home.html", {"week": week, "genres" : genres})
-
-
-
-@login_required(login_url="/login/")
-def search(request):
-    genres =  Genre.objects.all()
-    if request.POST:
-        #create search later
-        form = Search(request.POST)
-        if form.is_valid():
-            name =  form.cleaned_data.get('search bar')
-            query = Q(author__authorName__icontains = name)
-            query.add(Q(title__icontains= name),Q.OR)
-            query.add(Q(genre__name__icontains= name),Q.OR)
-            ola = Novel.objects.filter(query)
-            poems = Poems.objects.filter(query)
-            audio = Audio.objects.filter(query)
-            #paginate the output
-            olah = pagination(request ,  ola  , 9)
-            stories = pagination(request, story, 9)
-            form = Search()
-            context={
-                'form': form,
-                'books' : ola,
-                'poems':poems,
-                'audio': audio,  
-                'genre':genres,
-                'author':author
-                
-            }
-
-            return render (request,'bookshy/shop.html',context)
-    form = Search()
-    context={
-                'form': form,
-                'top' : books,
-                'genre':genres,
-                'story':stories,
-                'author':author
-            }
-    return render(request,'bookshy/search.html',context)
-
-
-
-
-@login_required(login_url="/login")
-def add_genre(request):
-    if request.POST:
-        form  =  GenreForm(request.POST)
-        if form.is_valid():
-            form.save()
-
-    return HttpResponseForbidden()
+    def perform_create(self, serializer):
         
+        serializer.save(creator= self.request.user, admins = 
+        [self.request.user])
+      
+
+
+#Members list Group
+class GroupMembersList(RetrieveAPIView):
+    queryset = GroupChat.objects.all()
+    serializer_class = GroupMessageSerializer
+    permission_classes = [IsAuthenticated]
+    def get_object(self,room):
+       # room = self.request.data.get('room')
+        query = get_object_or_404(GroupChat, room__name=room)
+        return query
+     
+    def retrieve(self, request, room, **kwargs):
+        instance = self.get_object(room)
+        self.check_object_permissions(request, instance)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+        
+
+#Join Group
+class GroupJoinAPIView(APIView):
+    """
+    Join a group 
+    and get query should list all current group of user 
+    """
+    permission_classes = [IsAuthenticated]
+#    serializer_class = JoinGroupSerializer
+
+    def get_object(self,room):
+        try:
+            queryset = GroupChat.objects.get(room__name = room)
+            return queryset
+        except GroupChat.DoesNotExist:
+            raise Http404
+
+    def get(self, request, format=None):
+        snippet = request.user.groupchat_set.all()
+        serializer = GroupMessageSerializer(snippet, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        try:
+            room = request.data['room']
+        except :
+            raise Http404
+        ola = self.get_object(room)
+        print(request.META.get('access') )
+        if request.user.groupchat_set.filter(room__name=room):
+            return Response('already regis')
+        
+        serializer = JoinGroupSerializer(data={'room':room,
+        'user_token' : request.META.get('HTTP_AUTHORIZATION') 
+        })
+
+        ola.citizens.add(request.user)
+        ola.save()
+        print(serializer)
+        RedisPub('joingroup',serializer.data)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     
+    
+
+
+
+
+
+
+# class GroupJoinAPIView(CreateAPIView):
+#    # queryset = GroupChat.objects.all()
+#     serializer_class = JoinGroupSerializer
+
+#     permission_classes = [IsAuthenticated]
+#     def get_queryset(self):
+#         """
+#         Optionally restricts the returned purchases to a given user,
+#         by filtering against a `username` query parameter in the URL.
+#         """
+#         queryset = GroupChat.objects.all()
+#         room = self.request.data.get('room')
+#         if room is not None:
+#             queryset = queryset.filter(room__name=room).first()
+
+#         return queryset,room
+
+#     def create(self, request, *args, **kwargs):
+#         #check if user is already in group
+#         ola,room = self.get_queryset()
+#         if not hasattr(ola, 'citizens'):
+#             return Response('not ac')
+#         elif request.user.groupchat_set.filter(room__name=room):
+#             return Response('already regis')
+#         ola.citizens.add(request.user)
+#         ola.save()
+#         print('ok')
+
+#         RedisPub('joingroup',serializer)
+#         headers = self.get_success_headers(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+def RedisPub(channel_name,SerializerData):
+    #push to redis 
+     redis_instance.publish(channel_name, SerializerData)
+

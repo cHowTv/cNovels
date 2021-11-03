@@ -12,15 +12,18 @@ class AuthorOrReadOnly(permissions.BasePermission):
             return True
         return False
 
-    def has_object_permission(self, request, view, obj):
-        if obj.author == request.user:
+    def has_permission(self, request, view):
+        #if creator is author
+        if request.user.is_author:
             return True
         return False
 
 
 
 class GroupOwners(permissions.BasePermission):
-
+    """
+    Managing the group
+    """
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return True
@@ -28,6 +31,21 @@ class GroupOwners(permissions.BasePermission):
 
     
     def has_object_permission(self, request, view, obj):
-        if request.user in obj.admins:
+        if request.user in obj.room.admins:
+            return True
+        return False
+
+class GroupMember(permissions.BasePermission):
+    """
+    Managing the group
+    """
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        #list group member if user in group
+        if request.user.groupchat_set.filter(room=obj):
             return True
         return False
