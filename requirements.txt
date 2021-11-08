@@ -13,3 +13,4 @@ djangorestframework_simplejwt
 dj-rest-auth 
 django-allauth 
 django-cors-headers
+redis-py
