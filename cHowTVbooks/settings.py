@@ -42,12 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_gis',
     'novel',
     'ckeditor',
     'star_ratings',
     'corsheaders',
      "dj_rest_auth",
     "allauth",
+    "multiselectfield",
     "allauth.account",
     "django.contrib.sites",
     "dj_rest_auth.registration",
@@ -142,8 +144,9 @@ STATIC_ROOT =  os.path.join(BASE_DIR, 'static')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
          'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES':[

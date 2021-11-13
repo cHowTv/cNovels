@@ -25,13 +25,14 @@ class GroupOwners(permissions.BasePermission):
     Managing the group
     """
     def has_permission(self, request, view):
+        
         if request.user.is_authenticated:
-            return True
+            return True 
         return False
 
     
     def has_object_permission(self, request, view, obj):
-        if request.user in obj.room.admins:
+        if request.user in obj.admins.all():
             return True
         return False
 
@@ -47,5 +48,18 @@ class GroupMember(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         #list group member if user in group
         if request.user.groupchat_set.filter(room=obj):
+            return True
+        return False
+
+class GroupCreator(permissions.BasePermission):
+    def has_permission(self, request, view):
+        
+        if request.user.is_authenticated:
+            return True 
+        return False
+
+    
+    def has_object_permission(self, request, view, obj):
+        if request.user == obj.creator:
             return True
         return False

@@ -242,6 +242,25 @@ class Audio(models.Model):
 
 
 # Extends User model
+from multiselectfield import MultiSelectField
+
+# ...
+
+MY_CHOICES = (('item_key1', 'Item title 1.1'),
+              ('item_key2', 'Item title 1.2'),
+              ('item_key3', 'Item title 1.3'),
+              ('item_key4', 'Item title 1.4'),
+              ('item_key5', 'Item title 1.5'))
+
+MY_CHOICES2 = ((1, 'Item title 2.1'),
+               (2, 'Item title 2.2'),
+               (3, 'Item title 2.3'),
+               (4, 'Item title 2.4'),
+               (5, 'Item title 2.5'))
+
+
+
+
 
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
@@ -253,6 +272,10 @@ class User(AbstractUser):
     saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
     is_author = models.BooleanField(default=False)
+    my_field = MultiSelectField(choices=MY_CHOICES, blank=True)
+    my_field2 = MultiSelectField(choices=MY_CHOICES2,blank=True,
+                                 max_choices=3,
+                                 max_length=3)
     def __str__(self) -> str:
         return self.username
 #weekly shoutouts , these should be based on "most rated" 
@@ -269,7 +292,7 @@ class Weekly(models.Model):
 class Room(models.Model):
     creator = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
     admins = models.ManyToManyField(User,related_name='admins' )
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     discription = models.TextField()
     private = models.BooleanField(default=False)
 
@@ -299,3 +322,18 @@ class GroupChat(models.Model):
 
     def __str__(self) :
         return f'group {self.room.name}'
+
+
+class NovelMap(models.Model):
+    name = models.CharField(max_length=30)
+    point =  models.ForeignKey('MapPoint', on_delete=models.CASCADE)
+    discription = models.TextField()
+    novel = models.ForeignKey(Novel, on_delete=models.CASCADE)
+
+#from django.contrib.gis.db import models
+class MapPoint(models.Model):
+ 
+    #coord =  models.PointField()
+    name = models.CharField(max_length=30)
+    discription = models.TextField()
+    

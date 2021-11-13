@@ -48,5 +48,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+        redis_client.incr("total_users")
+        user_key = f"user:{user.id}"
+        username_key = f"username:{user.username}"
+        #added user to redis for chat
+        redis_client.set(user_key, username_key)
+
 
         return user 

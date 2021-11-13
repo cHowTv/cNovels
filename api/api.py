@@ -85,7 +85,6 @@ class RecentReadViewSet(APIView):
     """
   recently viewed
     """
-  
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, pk):
