@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from authentication.permissions import AuthorOrReadOnly, GroupOwners, GroupCreator
 from novel.models import GroupChat, Room, MapPoint
 from rest_framework.response import Response
-from novel.serializers import JoinGroupSerializer, RoomSerializer, GroupSerializer, UserSerializer, LocationSerializer
+from novel.serializers import JoinGroupSerializer, RoomSerializer, GroupSerializer, UserSerializer
 import redis
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.views import APIView
@@ -166,14 +166,14 @@ class DeleteGroup(APIView):
         ola.delete()
         
         return 'deleted'
-from rest_framework_gis.filters import DistanceToPointFilter
+# from rest_framework_gis.filters import DistanceToPointFilter
 
-class LocationList(ListAPIView):
+# class LocationList(ListAPIView):
 
-    queryset = MapPoint.objects.all()
-    serializer_class = LocationSerializer
-    distance_filter_field = 'geometry'
-    filter_backends = (DistanceToPointFilter,)
+#     queryset = MapPoint.objects.all()
+#     serializer_class = LocationSerializer
+#     distance_filter_field = 'geometry'
+#     filter_backends = (DistanceToPointFilter,)
 
 #save discussion
     #receives from redis pub and save message

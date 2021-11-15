@@ -3,7 +3,7 @@ from django.contrib.contenttypes import fields
 from django.db import models
 from rest_framework import serializers
 from .models import GroupChat, MapPoint, Message, NovelMap, Room
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
+
 
 User = get_user_model()
 class MessageSerializer(serializers.ModelSerializer):
@@ -51,22 +51,22 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 2
         
-class LocationSerializer(GeoFeatureModelSerializer):
-    """ A class to serialize locations as GeoJSON compatible data """
+# class LocationSerializer(GeoFeatureModelSerializer):
+#     """ A class to serialize locations as GeoJSON compatible data """
 
-    class Meta:
-        model = MapPoint
-        geo_field = "coord"
+#     class Meta:
+#         model = MapPoint
+#         geo_field = "coord"
 
-        # you can also explicitly declare which fields you want to include
-        # as with a ModelSerializer.
-        fields = '__all__'
+#         # you can also explicitly declare which fields you want to include
+#         # as with a ModelSerializer.
+#         fields = '__all__'
         
-class MapSerializer(serializers.ModelSerializer):
-    point = LocationSerializer()
-    class Meta:
-        models = NovelMap
-        fields = '__all__'
+# class MapSerializer(serializers.ModelSerializer):
+#     point = LocationSerializer()
+#     class Meta:
+#         models = NovelMap
+#         fields = '__all__'
 
 
 
