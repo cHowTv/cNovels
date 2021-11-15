@@ -41,4 +41,5 @@ swapper==1.1.2.post1
 uritemplate==4.1.1
 urllib3==1.26.7
 whitenoise==5.3.0
+drf-yasg 
 gunicorn

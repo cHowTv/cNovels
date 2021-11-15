@@ -144,6 +144,10 @@ class AddAdminView(APIView):
 class CheckUSer(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+#class SaveMessage(APIView):
+    
 #delete group
 class DeleteGroup(APIView):
     '''
