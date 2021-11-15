@@ -7,11 +7,11 @@ from .views import AddAdminView, GroupCreateAPIView, GroupJoinAPIView, GroupMemb
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="cBooks",
       default_version='v1',
-      description="Test description",
+      description="cBooks API",
       terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
+      contact=openapi.Contact(email="proflamyt@gmail.com"),
       license=openapi.License(name="BSD License"),
    ),
    public=True,
