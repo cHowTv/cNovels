@@ -295,6 +295,10 @@ class Room(models.Model):
     name = models.CharField(max_length=100, unique=True)
     discription = models.TextField()
     private = models.BooleanField(default=False)
+class RoomMessage(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    message = models.CharField(max_length=200)
+    date = models.DateField()
 
 class Message(models.Model):
      sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')        
