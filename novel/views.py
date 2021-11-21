@@ -8,7 +8,7 @@ from django.http.response import Http404
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from authentication.permissions import AuthorOrReadOnly, GroupOwners, GroupCreator
-from novel.models import GroupChat, Room, MapPoint
+from novel.models import GroupChat, Room, RoomMessage
 from rest_framework.response import Response
 from novel.serializers import JoinGroupSerializer, RoomSerializer, GroupSerializer, UserSerializer
 import redis
@@ -146,7 +146,26 @@ class CheckUSer(ListAPIView):
     serializer_class = UserSerializer
 
 
-#class SaveMessage(APIView):
+def saveprivate(message):
+    userid = message.id
+
+    
+
+
+def SaveGroupMessage(message):
+    room = message.roomId
+    message = message.message
+    date = message.date
+    room  =  Room.objects.get(pk=room)
+    p, created = RoomMessage.get_or_create(
+        Room = room,
+        date =date,
+        message= message
+    )
+
+
+
+
     
 #delete group
 class DeleteGroup(APIView):

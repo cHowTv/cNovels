@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.fields.related import ManyToManyField
 from django.utils import timezone
@@ -74,7 +75,7 @@ class Chapters(models.Model):
     title = models.CharField(max_length=200,blank=True,unique=True, null=True)
     number = models.PositiveIntegerField(blank=True, null=True)
     book = RichTextField(config_name='novellas')
-    novel = models.ForeignKey('Novel',on_delete=models.SET_NULL,blank=True, null=True)
+    novel = models.ForeignKey('Novel',related_name='books', on_delete=models.SET_NULL,blank=True, null=True)
 
 def validate_chapter(sender, instance, **kwargs):
     instance.number = Chapters.objects.count()+1
@@ -85,48 +86,55 @@ pre_save.connect(validate_chapter, sender=Chapters)
 
 
 class Novel(models.Model):
-     title = models.CharField(max_length=200,blank=True,unique=True, null=True)
+    STATUS_UNREAD = 'u'
+    STATUS_READ = 'r'
+    STATUS_CHOICES = [
+        (STATUS_UNREAD, 'unread'),
+        (STATUS_READ, 'read'),
+    ]
+    title = models.CharField(max_length=200,blank=True,unique=True, null=True)
 
-
-     slug = models.SlugField(max_length=200,unique=True)
+    slug = models.SlugField(max_length=200,unique=True)
     # Foreign Key used because book can only have one author, but authors can have multiple books
     # Author as a string rather than object because it hasn't been declared yet in the file
-     author = models.ForeignKey('Profile', on_delete=models.SET_NULL,blank=True, null=True)
+    author = models.ForeignKey('Profile', on_delete=models.SET_NULL,blank=True, null=True)
+
+    premium = models.BooleanField(default=False)
     
-     premium = models.BooleanField(default=False)
-     
-     #Summary of the book 
-     summary = RichTextField()
+    #Summary of the book 
+    summary = RichTextField()
 
-     isbn = models.CharField( max_length=13,unique=True, null=True, blank=True, help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn"> ISBN number </a>')
+    isbn = models.CharField( max_length=13,unique=True, null=True, blank=True, help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn"> ISBN number </a>')
+
+# ManyToManyField used because genre can contain many books. EBooks can cover many genres.
+# Genre class has already been defined so we can specify the object above.
+    genre = models.ManyToManyField(Genre, help_text='Select multiple genres for this book')
     
-    # ManyToManyField used because genre can contain many books. EBooks can cover many genres.
-    # Genre class has already been defined so we can specify the object above.
-     genre = models.ManyToManyField(Genre, help_text='Select multiple genres for this book')
-     
-     #if authors were to upload books if already written
-     #will be parsed and restored into chapters later  
-     bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
-     
+    #if authors were to upload books if already written
+    #will be parsed and restored into chapters later  
+    bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
+    
 
-     date_uploaded = models.DateField(default = timezone.now)
+    date_uploaded = models.DateField(default = timezone.now)
 
-     bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
-     
-     created_author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='created')
-     
-     ratings = GenericRelation(Rating, related_query_name='novels_ratings')
+    bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
+    
+    created_author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='created')
+    
+    ratings = GenericRelation(Rating, related_query_name='novels_ratings')
 
-     def save(self, *args,  **kwargs ):
+    state = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_UNREAD)
+
+    def save(self, *args,  **kwargs ):
         self.slug = slugify(self.title)
         super(Novel, self).save(*args, **kwargs)
 
 
-    #use django signal for save  
+#use django signal for save  
 
 
-        
-     def __str__(self):
+    
+    def __str__(self):
         return f"{self.title}"
 
 
@@ -195,35 +203,50 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user}"
 
+class UserBook(models.Model):
+    STATUS_UNREAD = 'u'
+    STATUS_READ = 'r'
+    STATUS_CHOICES = [
+        (STATUS_UNREAD, 'unread'),
+        (STATUS_READ, 'read'),
+    ]
+    book = models.ForeignKey(Novel, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    state = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_UNREAD)
+
+    
 class Audio(models.Model):
-     title = models.CharField(max_length=200,blank=True,unique=True, null=True)
 
-     slug = models.SlugField(max_length=200,unique=True)
-    # Foreign Key used because book can only have one author, but authors can have multiple books
-    # Author as a string rather than object because it hasn't been declared yet in the file
-     author = models.ForeignKey('Profile', on_delete=models.SET_NULL,blank=True, null=True)
+    title = models.CharField(max_length=200,blank=True,unique=True, null=True)
+
+    slug = models.SlugField(max_length=200,unique=True)
+# Foreign Key used because book can only have one author, but authors can have multiple books
+# Author as a string rather than object because it hasn't been declared yet in the file
+    author = models.ForeignKey('Profile', on_delete=models.SET_NULL,blank=True, null=True)
+
+    premium = models.BooleanField(default=False)
     
-     premium = models.BooleanField(default=False)
-     
-     #Summary of the book 
-     summary = RichTextField()
+    #Summary of the book 
+    summary = RichTextField()
+
+# ManyToManyField used because genre can contain many books. EBooks can cover many genres.
+# Genre class has already been defined so we can specify the object above.
+    genre = models.ManyToManyField(Genre, help_text='Select multiple genres for this book')
     
-    # ManyToManyField used because genre can contain many books. EBooks can cover many genres.
-    # Genre class has already been defined so we can specify the object above.
-     genre = models.ManyToManyField(Genre, help_text='Select multiple genres for this book')
-     
-     #if authors were to upload books if already written
-     #will be parsed and restored into chapters later  
-     bookFile = models.FileField(blank=False,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size])
+    #if authors were to upload books if already written
+    #will be parsed and restored into chapters later  
+    bookFile = models.FileField(blank=False,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size])
 
-     date_uploaded = models.DateField(default = timezone.now)
+    date_uploaded = models.DateField(default = timezone.now)
 
-    #verify and default save later
-     bookImage = models.FileField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
-     
-     created_author = models.ForeignKey( settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='audiocreator')
-     
-     ratings = GenericRelation(Rating, related_query_name='audio_ratings')
+#verify and default save later
+    bookImage = models.FileField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
+    
+    created_author = models.ForeignKey( settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='audiocreator')
+    
+    ratings = GenericRelation(Rating, related_query_name='audio_ratings')
+
+    
 
 
 
@@ -231,13 +254,13 @@ class Audio(models.Model):
     
   
 
-     def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):
          
         self.bookImage = compress(self.bookImage)
         super(Novel, self).save( *args,**kwargs )
 
         
-     def __str__(self):
+    def __str__(self):
         return f"{self.title}"
 
 
@@ -267,7 +290,7 @@ class User(AbstractUser):
     favorite = models.ManyToManyField(Novel,blank=True)
     saved_novels = models.ManyToManyField(Novel,blank=True ,  related_name='saved_novel')
     saved_audios =  models.ForeignKey(Audio,blank=True, null=True,on_delete=models.SET_NULL, related_name='saved_audios')
-    recently_viewed_novels = models.ManyToManyField(Novel,blank=True,  related_name='recently_viewed_novels')
+    recently_viewed_chapters = models.ManyToManyField(Chapters, blank=True, related_name='recently_viewed_chapters')
     recently_viewed_audios = models.ForeignKey(Audio,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_audios')
     saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
@@ -327,17 +350,3 @@ class GroupChat(models.Model):
     def __str__(self) :
         return f'group {self.room.name}'
 
-
-class NovelMap(models.Model):
-    name = models.CharField(max_length=30)
-    point =  models.ForeignKey('MapPoint', on_delete=models.CASCADE)
-    discription = models.TextField()
-    novel = models.ForeignKey(Novel, on_delete=models.CASCADE)
-
-#from django.contrib.gis.db import models
-class MapPoint(models.Model):
- 
-    #coord =  models.PointField()
-    name = models.CharField(max_length=30)
-    discription = models.TextField()
-    

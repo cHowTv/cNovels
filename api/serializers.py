@@ -48,3 +48,22 @@ class PoemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poems
         exclude =  ['bookFile', 'story']
+
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapters
+        fields = '__all__'
+
+class UserNovelSerializer(serializers.ModelSerializer):
+    book = NovelSerializer(read_only=True)
+    class Meta:
+        model = UserBook
+        exclude = ('user',)
+        depth = 2
+    def update(self, instance, validated_data):
+        data = validated_data.pop('state')
+        print(validated_data)
+        instance.state= data
+        instance.save()
+        return instance
+        

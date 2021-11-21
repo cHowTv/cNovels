@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes import fields
 from django.db import models
 from rest_framework import serializers
-from .models import GroupChat, MapPoint, Message, NovelMap, Room
+from .models import GroupChat,  Message, Room
 
 
 User = get_user_model()
