@@ -86,12 +86,7 @@ pre_save.connect(validate_chapter, sender=Chapters)
 
 
 class Novel(models.Model):
-    STATUS_UNREAD = 'u'
-    STATUS_READ = 'r'
-    STATUS_CHOICES = [
-        (STATUS_UNREAD, 'unread'),
-        (STATUS_READ, 'read'),
-    ]
+
     title = models.CharField(max_length=200,blank=True,unique=True, null=True)
 
     slug = models.SlugField(max_length=200,unique=True)
@@ -123,7 +118,7 @@ class Novel(models.Model):
     
     ratings = GenericRelation(Rating, related_query_name='novels_ratings')
 
-    state = models.CharField(max_length=1, choices=STATUS_CHOICES, default=STATUS_UNREAD)
+    
 
     def save(self, *args,  **kwargs ):
         self.slug = slugify(self.title)
@@ -318,10 +313,14 @@ class Room(models.Model):
     name = models.CharField(max_length=100, unique=True)
     discription = models.TextField()
     private = models.BooleanField(default=False)
+
+
 class RoomMessage(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     message = models.CharField(max_length=200)
     date = models.DateField()
+
+
 
 class Message(models.Model):
      sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')        
@@ -333,12 +332,17 @@ class Message(models.Model):
            return self.message
      class Meta:
            ordering = ('timestamp',)
+
+
+
 class Event(models.Model):
     name = models.CharField(max_length=100)
     time  = models.DateField()
 
     def __str__(self):
         return self.name
+
+        
 
 class GroupChat(models.Model):
     citizens = models.ManyToManyField(User)

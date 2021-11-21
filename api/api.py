@@ -98,7 +98,8 @@ class ReadChapter(APIView):
     """
     Returns the Chapter of the Novel 
 
-    if Chapter not specified , it returns the last read chapter of that particular book
+    if Chapter not specified , it returns the last chapter read by the user of that particular book, else it returns 
+    the first chapter
     
     """
     def get_object(self, book):
@@ -108,6 +109,7 @@ class ReadChapter(APIView):
         except Novel.DoesNotExist:
             raise Http404
     def get(self, request, book, pk=None,format=None ):
+        #change bookstatus
         
         book = self.get_object(book)
         
