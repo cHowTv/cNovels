@@ -1,9 +1,9 @@
 from django.http.response import Http404
-from novel.models import Audio, Genre, Novel, Poems, Weekly, Chapters, UserBook
+from novel.models import Audio, Genre,Profile, Novel, Poems, Weekly, Chapters, UserBook
 from rest_framework import generics, serializers, viewsets, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
-from .serializers import AudioSerializer, ChapterSerializer,UserNovelSerializer, GenreSerializer, NovelSerializer, PoemSerializer, UserSerializer,  WeeklySerializer
+from .serializers import AudioSerializer, ChapterSerializer,UserNovelSerializer, AuthorSerializer, GenreSerializer, NovelSerializer, PoemSerializer, UserSerializer,  WeeklySerializer
 from django.contrib.auth import get_user_model
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.views import APIView
@@ -105,6 +105,7 @@ class ReadChapter(APIView):
     def get_object(self, book):
         try:
             novel = Novel.objects.get(slug=book)
+            ola , created = UserBook.objects.get_or_create(user=self.request.user,book=novel)
             return novel
         except Novel.DoesNotExist:
             raise Http404
@@ -198,3 +199,29 @@ class BookStatusUpdate(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
+
+
+class AuthorView(APIView):
+    """"
+    Author Bio 
+    Return Number of books , best selling books , genres, new , most popular, number of read,
+    """
+    permission_classes = [permissions.AllowAny]
+    def get_object(self, pk):
+        try:
+            author = Profile.objects.get(pk=pk)
+        except :
+            raise Http404
+        return author
+
+
+
+
+    def get(self, request, pk):
+        author = self.get_object(pk)
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data)
+
+        
+
+

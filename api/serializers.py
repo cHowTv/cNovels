@@ -3,6 +3,7 @@ from django.contrib.contenttypes import fields
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from novel.models import *
+from django.db.models import Sum 
 
 User = get_user_model()
 
@@ -11,7 +12,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "email","last_searched","recently_viewed_novels","saved_novels"]
+        fields = ["username", "email","last_searched","saved_novels"]
 
 
 
@@ -37,7 +38,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class NovelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Novel
-        exclude = ['bookFile',]
+        fields = '__all__'
 
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,7 +48,7 @@ class AudioSerializer(serializers.ModelSerializer):
 class PoemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poems
-        exclude =  ['bookFile', 'story']
+        exclude =  [ 'story']
 
 class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,8 +63,30 @@ class UserNovelSerializer(serializers.ModelSerializer):
         depth = 2
     def update(self, instance, validated_data):
         data = validated_data.pop('state')
-        print(validated_data)
-        instance.state= data
+        instance.state = data
         instance.save()
         return instance
         
+
+class AuthorSerializer(serializers.ModelSerializer):
+    most_popular = serializers.SerializerMethodField()
+    new = serializers.SerializerMethodField()
+    total_books = serializers.SerializerMethodField()
+    total_readers = serializers.SerializerMethodField()
+    #user =  UserSerializer()
+    class Meta:
+        model = Profile
+        exclude = ('user',)
+    def get_most_popular(self, instance):
+        books = instance.profile.all().order_by('ratings')[:20]
+        return NovelSerializer(books, many=True).data
+    def get_new(self, instance):
+        books = instance.profile.all().order_by('date_uploaded')[:20]
+        return NovelSerializer(books, many=True).data
+    
+    def get_total_books(self, instance):
+        number = instance.profile.count()
+        return number
+    def get_total_readers(self, instance):
+        readers = instance.profile.all().aggregate(num = Sum('readers_num'))  
+        return readers

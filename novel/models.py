@@ -92,7 +92,7 @@ class Novel(models.Model):
     slug = models.SlugField(max_length=200,unique=True)
     # Foreign Key used because book can only have one author, but authors can have multiple books
     # Author as a string rather than object because it hasn't been declared yet in the file
-    author = models.ForeignKey('Profile', on_delete=models.SET_NULL,blank=True, null=True)
+    author = models.ForeignKey('Profile',related_name='profile', on_delete=models.SET_NULL,blank=True, null=True)
 
     premium = models.BooleanField(default=False)
     
@@ -107,7 +107,7 @@ class Novel(models.Model):
     
     #if authors were to upload books if already written
     #will be parsed and restored into chapters later  
-    bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
+    #bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
     
 
     date_uploaded = models.DateField(default = timezone.now)
@@ -117,6 +117,8 @@ class Novel(models.Model):
     created_author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.SET_NULL, blank=True, null=True, related_name='created')
     
     ratings = GenericRelation(Rating, related_query_name='novels_ratings')
+
+    readers_num = models.IntegerField(blank=True, null=True)
 
     
 
@@ -188,7 +190,9 @@ class Profile(models.Model):
 
     about_me = models.TextField(blank=True, null=True)
 
-    instagram = models.CharField(max_length=30, null=True)
+    country = models.CharField(max_length=30, null=True)
+
+    genre = models.ManyToManyField(Genre)
 
     twitter = models.CharField(max_length=30, null=True)
 
@@ -284,10 +288,10 @@ class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     favorite = models.ManyToManyField(Novel,blank=True)
     saved_novels = models.ManyToManyField(Novel,blank=True ,  related_name='saved_novel')
-    saved_audios =  models.ForeignKey(Audio,blank=True, null=True,on_delete=models.SET_NULL, related_name='saved_audios')
+    saved_audios =  models.ManyToManyField(Audio,blank=True,  related_name='saved_audios')
     recently_viewed_chapters = models.ManyToManyField(Chapters, blank=True, related_name='recently_viewed_chapters')
-    recently_viewed_audios = models.ForeignKey(Audio,blank=True,null=True, on_delete=models.SET_NULL, related_name='recently_viewed_audios')
-    saved_poems = models.ForeignKey(Poems,blank=True ,null=True, on_delete=models.SET_NULL, related_name='saved_poems')
+    recently_viewed_audios = models.ManyToManyField(Audio,blank=True,  related_name='recently_viewed_audios')
+    saved_poems = models.ManyToManyField(Poems,blank=True , related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
     is_author = models.BooleanField(default=False)
     my_field = MultiSelectField(choices=MY_CHOICES, blank=True)
