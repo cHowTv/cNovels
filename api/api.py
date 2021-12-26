@@ -226,6 +226,9 @@ class AuthorView(APIView):
         
 
 class CurrentUser(APIView):
+    """
+    Sends Current User's Detail
+    """
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
