@@ -33,7 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta :
         model = User 
-        fields = ('email', 'password', 'password2')
+        fields = ('username','email', 'password', 'password2')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -44,15 +44,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user  =  User.objects.create(
             email = validated_data['email'],
+            username = validated_data['username']
 
         )
         user.set_password(validated_data['password'])
         user.save()
-        redis_client.incr("total_users")
-        user_key = f"user:{user.id}"
-        username_key = f"username:{user.username}"
-        #added user to redis for chat
-        redis_client.set(user_key, username_key)
-
-
         return user 
