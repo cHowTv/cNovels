@@ -1,5 +1,7 @@
+from django.contrib import auth
 from django.contrib.auth.models import  Group
 from django.contrib.contenttypes import fields
+from django_filters.rest_framework import filters
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from novel.models import *
@@ -35,10 +37,17 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class NovelAuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['authorName', 'country']
+
 class NovelSerializer(serializers.ModelSerializer):
+    author =  NovelAuthorSerializer()
     class Meta:
         model = Novel
-        fields = '__all__'
+        exclude = ('created_author',)
+        
 
 class AudioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,5 +97,5 @@ class AuthorSerializer(serializers.ModelSerializer):
         number = instance.profile.count()
         return number
     def get_total_readers(self, instance):
-        readers = instance.profile.all().aggregate(num = Sum('readers_num'))  
+        readers = instance.profile.all().aggregate(num = Sum('readers_num'))
         return readers

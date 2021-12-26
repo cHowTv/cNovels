@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
      "dj_rest_auth",
     "allauth",
+    'django_filters',
     "multiselectfield",
     "allauth.account",
     "django.contrib.sites",

@@ -1,4 +1,5 @@
 from django.http.response import Http404
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from novel.models import Audio, Genre,Profile, Novel, Poems, Weekly, Chapters, UserBook
 from rest_framework import generics, serializers, viewsets, status, filters, permissions
 from rest_framework.response import Response
@@ -8,6 +9,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.views import APIView
 from django.core.exceptions import ObjectDoesNotExist
+from api.filters import NovelFilter
 User = get_user_model()
 
 
@@ -21,7 +23,7 @@ class NovelSearchView(generics.ListAPIView):
     """
     Displays all novels with just 'get request' , filters the searches with ?search query ;
     e.g
-     /novel-search?search=ola 
+     /novel-search?genre=&author= 
     
     will return all novel objects relating to ola
     
@@ -29,12 +31,11 @@ class NovelSearchView(generics.ListAPIView):
     """
     queryset = Novel.objects.all()
     serializer_class = NovelSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'author__authorName', 'genre__name', 'chapters__title']
-    def get_queryset(self):
-        user = self.request.user
-        return user.recently_viewed_novels.all()
-
+    permission_classes =[permissions.AllowAny,]
+    filter_backends = [DjangoFilterBackend]
+    filter_class = NovelFilter
+    #search_fields = ['title', 'author__authorName', 'genre__name', 'books__title']
+ 
 
 class PoemsSearchView(generics.ListAPIView):
     """
@@ -224,4 +225,7 @@ class AuthorView(APIView):
 
         
 
-
+class CurrentUser(APIView):
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
