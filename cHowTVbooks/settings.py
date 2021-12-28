@@ -102,6 +102,10 @@ DATABASES = {
     }
 }
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3030',
+    'https://c-novels-frontend.vercel.app'
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
