@@ -102,6 +102,9 @@ DATABASES = {
     }
 }
 
+# Allow all cors
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3030',
     'https://c-novels-frontend.vercel.app'
