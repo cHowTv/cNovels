@@ -78,7 +78,7 @@ def home(request):
     week_serializer = WeeklySerializer(weekly, many=True)
     genres  =  Genre.objects.all()
     genre_serializer = GenreSerializer(genres, many=True)
-    #add blog
+    # add blog
     return Response({'genres':genre_serializer.data, 'weekly':week_serializer.data})
 
 
@@ -150,7 +150,7 @@ class ReadChapter(APIView):
         serializer = ChapterSerializer(chapter1)
         return Response(serializer.data)
 
-        #if no pk return recent chapter in novel
+        # if no pk return recent chapter in novel
 
 class BookStatusUpdate(APIView):
 
@@ -175,7 +175,7 @@ class BookStatusUpdate(APIView):
     def get(self, request, book=None):
 
         instance = self.get_object()
-        #p#rint(instance)
+        # print(instance)
         if book:
             books = instance.filter(state='u')
             serializer = UserNovelSerializer(books, many=True)

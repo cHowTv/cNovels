@@ -141,9 +141,6 @@ class AddAdminView(APIView):
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         return Http404
         
-class CheckUSer(ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 
 def saveprivate(message):

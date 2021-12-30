@@ -268,19 +268,32 @@ from multiselectfield import MultiSelectField
 
 # ...
 
-MY_CHOICES = (('item_key1', 'Item title 1.1'),
-              ('item_key2', 'Item title 1.2'),
-              ('item_key3', 'Item title 1.3'),
-              ('item_key4', 'Item title 1.4'),
-              ('item_key5', 'Item title 1.5'))
+MY_CHOICES = ((1, 'Traveling'),
+              (2, 'Reading'),
+              (3, 'Singing'),
+              (4, 'Dancing'),
+              (5, 'Movies'))
 
-MY_CHOICES2 = ((1, 'Item title 2.1'),
-               (2, 'Item title 2.2'),
-               (3, 'Item title 2.3'),
-               (4, 'Item title 2.4'),
-               (5, 'Item title 2.5'))
+MY_CHOICES2 = ((1, 'Action'),
+               (2, 'Adventure'),
+               (3, 'Comedy'),
+               (4, 'Romance'),
+               (5, 'Fantasy'))
 
+MY_CHOICES3 = (
+    (1, 'Spanish'),
+    (2, 'English'),
+    (3, 'Yoruba'))
 
+class UserIntrest(models.Model):
+    user = models.OneToOneField('User', on_delete=models.CharField)
+    hobbies = MultiSelectField(choices=MY_CHOICES, blank=True)
+    genre = MultiSelectField(choices=MY_CHOICES2,blank=True,
+                                 max_choices=3,
+                                 max_length=3)
+    language = MultiSelectField(choices=MY_CHOICES3,blank=True,
+                                 max_choices=3,
+                                 max_length=3)
 
 
 
@@ -294,10 +307,7 @@ class User(AbstractUser):
     saved_poems = models.ManyToManyField(Poems,blank=True , related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
     is_author = models.BooleanField(default=False)
-    my_field = MultiSelectField(choices=MY_CHOICES, blank=True)
-    my_field2 = MultiSelectField(choices=MY_CHOICES2,blank=True,
-                                 max_choices=3,
-                                 max_length=3)
+    
     def __str__(self) -> str:
         return self.username
 #weekly shoutouts , these should be based on "most rated" 

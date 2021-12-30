@@ -4,6 +4,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
+from novel.models import UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
+
 
 
 User = get_user_model()
@@ -50,3 +52,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user 
+
+class IntrestSerializers(serializers.Serializer):
+    hobbies = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES)
+    genre = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES2)
+    language = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES3)
+
+    def create(self, validated_data):
+        return UserIntrest.objects.create(**validated_data)

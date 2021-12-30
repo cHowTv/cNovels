@@ -2,7 +2,7 @@ from drf_yasg.views import get_schema_view
 from django.urls import path
 from rest_framework import permissions
 from drf_yasg import openapi
-from .views import AddAdminView, GroupCreateAPIView, GroupJoinAPIView, GroupMembersList, CheckUSer
+from .views import AddAdminView, GroupCreateAPIView, GroupJoinAPIView, GroupMembersList
 
 
 schema_view = get_schema_view(
@@ -33,8 +33,7 @@ urlpatterns = [
     path('create', GroupCreateAPIView.as_view()),
     path('join', GroupJoinAPIView.as_view()),
     path('member-list/<str:room>',GroupMembersList.as_view()),
-    path('add-admin/',AddAdminView.as_view()) ,
-    path('intrest',CheckUSer.as_view())
+    path('add-admin/',AddAdminView.as_view()) 
     
 
 ]
