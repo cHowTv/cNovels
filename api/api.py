@@ -14,6 +14,9 @@ User = get_user_model()
 
 
 class NovelRealease(generics.ListAPIView):
+    """
+    Every Novel ordered accoring to date uploaded
+    """
     queryset = Novel.objects.all().order_by('-date_uploaded')
     serializer_class = NovelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -53,6 +56,9 @@ class PoemsSearchView(generics.ListAPIView):
     search_fields = ['title', 'authorName', 'genre', 'chapter_title']
 
 class AudiosListView(generics.ListAPIView):
+    """
+    Search Audios , fields are title , author genre, chapters
+    """
     queryset = Audio.objects.all()
     serializer_class = AudioSerializer
     filter_backends = [filters.SearchFilter]
@@ -60,8 +66,12 @@ class AudiosListView(generics.ListAPIView):
 
 
 class PoemsListView(generics.ListAPIView):
+    """
+    searches through the poems available on the website
+    
+    """
     queryset = Poems.objects.all()
-    serializer_class = NovelSerializer
+    serializer_class = PoemSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'authorName', 'genre', 'chapter_title']
 
@@ -71,7 +81,11 @@ class PoemsListView(generics.ListAPIView):
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 def home(request):
     '''
-    Displays Genres 
+    Displays Genres , Weely Novels , Audios , Special Features, Authors .....
+
+    Sends back all the genres listed also .
+
+    Designed For The Hopepage 
     
     '''
     weekly = Weekly.objects.all()
@@ -85,7 +99,7 @@ def home(request):
 
 class RecentReadViewSet(APIView):
     """
-  list all recently viewed novels
+  list all recently viewed novels chapters of logged in user
     """
     
     permission_classes = [permissions.IsAuthenticated]
@@ -227,8 +241,9 @@ class AuthorView(APIView):
 
 class CurrentUser(APIView):
     """
-    Sends Current User's Detail
+    Sends Current Logged in User Details User's Detail
     """
+    permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
