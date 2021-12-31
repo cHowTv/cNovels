@@ -152,6 +152,7 @@ class UserIntrestView(APIView):
             intrest = UserIntrest.objects.get(user=self.request.user)
         except:
             raise Http404
+        return intrest
     def get(self, request):
         intrests = self.get_object()
         # serialize the intrests

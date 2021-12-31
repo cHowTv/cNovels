@@ -1,5 +1,7 @@
 from django.http.response import Http404
+from django.urls.base import clear_script_prefix
 from django_filters.rest_framework.backends import DjangoFilterBackend
+from authentication.permissions import AuthorOrReadOnly
 from novel.models import Audio, Genre,Profile, Novel, Poems, Weekly, Chapters, UserBook
 from rest_framework import generics, serializers, viewsets, status, filters, permissions
 from rest_framework.response import Response
@@ -99,7 +101,8 @@ def home(request):
 
 class RecentReadViewSet(APIView):
     """
-  list all recently viewed novels chapters of logged in user
+    list all recently viewed novels chapters of logged in user, 
+
     """
     
     permission_classes = [permissions.IsAuthenticated]
@@ -112,11 +115,13 @@ class RecentReadViewSet(APIView):
 class ReadChapter(APIView):
     """
     Returns the Chapter of the Novel 
+    read/<book>/<chapter>
 
-    if Chapter not specified , it returns the last chapter read by the user of that particular book, else it returns 
-    the first chapter
+    if Chapter not specified , it returns the last chapter read by the user for that particular book, 
+    else if its the user's first time of reading the book it returns the first chapter of the book
     
     """
+    permission_classes = (permissions.IsAuthenticated,)
     def get_object(self, book):
         try:
             novel = Novel.objects.get(slug=book)
@@ -149,19 +154,20 @@ class ReadChapter(APIView):
  
             serializer = ChapterSerializer(chapter)
             return Response(serializer.data)
-        #get the recently read chapter for that novel
+        # get the recently read chapter for that novel by the user
         try:
-            chapter =user.get(novel=book)
+            chapter = user.get(novel=book)
         except ObjectDoesNotExist:
-            #send chapter 1
-            #check if chapter 1 exist
+            # send chapter 1
+            # check if chapter 1 exist
             
             chapter = book.books
-            chapter1 = chapter.first()
-            if chapter.exists():
-                user.add(chapter1)
-                request.user.save()
-        serializer = ChapterSerializer(chapter1)
+            chapter = chapter.first()
+            if not chapter.exists():
+                raise Http404
+            user.add(chapter)
+            request.user.save()
+        serializer = ChapterSerializer(chapter)
         return Response(serializer.data)
 
         # if no pk return recent chapter in novel
@@ -210,7 +216,7 @@ class BookStatusUpdate(APIView):
         serializer = UserNovelSerializer(snippet, data=data, partial=True)
         if serializer.is_valid(raise_exception=True) and snippet:
             serializer.update(serializer, data)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
@@ -247,3 +253,19 @@ class CurrentUser(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+
+# Create Books , only authors can create books 
+class CreateBook(APIView):
+    """
+    Allows Authors to create their novels 
+    """
+    permission_classes = (permissions.IsAuthenticated,AuthorOrReadOnly)
+    serializer_class = NovelSerializer
+    def post(self, request):
+        serializer = NovelSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user = request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

@@ -43,7 +43,11 @@ class NovelAuthorSerializer(serializers.ModelSerializer):
         fields = ['authorName', 'country']
 
 class NovelSerializer(serializers.ModelSerializer):
-    author =  NovelAuthorSerializer()
+    author =  NovelAuthorSerializer(read_only=True)
+    #ratings = GernericSerializer(read_only=True)
+    readers_num = serializers.IntegerField(read_only=True)
+    slug = serializers.SlugField(read_only=True)
+    date_uploaded = serializers.DateTimeField(read_only=True)
     class Meta:
         model = Novel
         exclude = ('created_author',)
