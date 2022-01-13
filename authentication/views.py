@@ -1,16 +1,17 @@
 from django.http.response import Http404
-from rest_framework import generics, serializers, status
+from authentication.permissions import AuthorOrReadOnly
+from rest_framework import generics, serializers, status, parsers, viewsets
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import IntrestSerializers, MyTokenObtainPairSerializer, RegisterSerializer
+from .serializers import IntrestSerializers, MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
 from rest_framework.response import Response
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import View, UpdateView
 from django.contrib.auth import authenticate, login, logout
@@ -18,7 +19,7 @@ from django.contrib.auth.decorators import login_required , user_passes_test
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
-from novel.models import UserIntrest
+from novel.models import UserIntrest, Profile
 from django.contrib.auth import get_user_model
 from authentication.tokens import account_activation_token
 from django.http import HttpResponseForbidden
@@ -165,3 +166,33 @@ class UserIntrestView(APIView):
             serializer.save(user = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Create Author Profile 
+class ProfileViewset(APIView):
+    permission_classes = (AuthorOrReadOnly,)
+    serializer_class = ProfileSerializer
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+   # http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_object(self):
+        obj = get_object_or_404(Profile, user=self.request.user)
+        self.check_object_permissions(self.request, obj)
+        return obj
+    
+    def get(self, request):
+        instance = self.get_object()
+        serializer = ProfileSerializer(instance)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user = request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    
+    
+ 

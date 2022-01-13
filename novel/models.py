@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.enums import Choices
 from django.db.models.fields.related import ManyToManyField
 from django.utils import timezone
 from django.conf import settings
@@ -110,7 +111,7 @@ class Novel(models.Model):
     #bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
     
 
-    date_uploaded = models.DateField(default = timezone.now)
+    date_uploaded = models.DateField(auto_now_add=True)
 
     bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
     
@@ -156,7 +157,7 @@ class Poems(models.Model):
      #if authors were to write instead of upload
      story = RichTextField(config_name='novellas')
 
-     date_uploaded = models.DateField(default = timezone.now)
+     date_uploaded = models.DateField(auto_now_add=True)
 
      bookImage = models.ImageField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
      
@@ -236,7 +237,7 @@ class Audio(models.Model):
     #will be parsed and restored into chapters later  
     bookFile = models.FileField(blank=False,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size])
 
-    date_uploaded = models.DateField(default = timezone.now)
+    date_uploaded = models.DateField(auto_now_add=True)
 
 #verify and default save later
     bookImage = models.FileField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
@@ -285,15 +286,31 @@ MY_CHOICES3 = (
     (2, 'English'),
     (3, 'Yoruba'))
 
+MY_CHOICES4 = (
+    (1, 'Author'),
+    (2, 'Reader')
+)
+MY_CHOICES5 = (
+    (1, 'Medieval'),
+    (2, 'Cyberpunk'),
+    (3, 'Iceage'),
+    (4, 'Ile-ife dynasty'),
+    (5, 'Neolitic'),
+    (6, 'Northern Caliphate'),
+    (7, 'Paleolithic')
+)
+
 class UserIntrest(models.Model):
     user = models.OneToOneField('User', on_delete=models.CharField)
     hobbies = MultiSelectField(choices=MY_CHOICES, blank=True)
     genre = MultiSelectField(choices=MY_CHOICES2,blank=True,
                                  max_choices=3,
                                  max_length=3)
+    profile = MultiSelectField(choices=MY_CHOICES4, blank=True, max_choices=1)
     language = MultiSelectField(choices=MY_CHOICES3,blank=True,
                                  max_choices=3,
                                  max_length=3)
+    timeline = MultiSelectField(choices=MY_CHOICES5, blank=True, max_length=3)
 
 
 

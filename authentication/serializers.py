@@ -4,7 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from novel.models import UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
+from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
 
 
 
@@ -60,6 +60,17 @@ class IntrestSerializers(serializers.Serializer):
                         choices = MY_CHOICES2)
     language = serializers.MultipleChoiceField(
                         choices = MY_CHOICES3)
+    profile = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES4)
+    timeline = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES5)
 
     def create(self, validated_data):
         return UserIntrest.objects.create(**validated_data)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+ 
+    class Meta:
+        model = Profile
+        exclude = ('user',)

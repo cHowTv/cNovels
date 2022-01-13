@@ -17,6 +17,11 @@ class AuthorOrReadOnly(permissions.BasePermission):
         if request.user.is_author:
             return True
         return False
+    # Check if user has access to the particular resource
+    def has_object_permission(self, request, view, obj):
+        if request.user == obj.user:
+            return True
+        return False
 
 
 
