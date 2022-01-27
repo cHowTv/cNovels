@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import GoogleLogin, MyTokenObtainPairView, ProfileViewset, RegisterView, UserIntrestView,  logout_user
+from .views import GoogleLogin, MyTokenObtainPairView, ProfileViewset, RegisterView, UserInterestView,  logout_user
 from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import (
     TokenRefreshView,

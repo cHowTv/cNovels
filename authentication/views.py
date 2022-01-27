@@ -5,7 +5,7 @@ from rest_framework import permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import IntrestSerializers, MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
+from .serializers import InterestSerializers, MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -148,7 +148,7 @@ class UserInterestView(APIView):
     Allows Users to Add interest by using the post request,
      you can also get users' interests by sending a get request
     """
-    serializer_class = IntrestSerializers
+    serializer_class = InterestSerializers
     permission_classes = (permissions.IsAuthenticated,)
     def get_object(self):
         try:
