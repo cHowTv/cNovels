@@ -125,7 +125,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class RegisterView(generics.CreateAPIView):
     """
 
-    Register with your username, email and password
+    Register with your username, email and password,
+    User Wont be able to log in until after verification
     
     """
     queryset = User.objects.all()
@@ -142,9 +143,10 @@ class GoogleLogin(SocialLoginView):
 
 
 
-class UserIntrestView(APIView):
+class UserInterestView(APIView):
     """
-    Allows Users to Add intrest 
+    Allows Users to Add interest by using the post request,
+     you can also get users' interests by sending a get request
     """
     serializer_class = IntrestSerializers
     permission_classes = (permissions.IsAuthenticated,)

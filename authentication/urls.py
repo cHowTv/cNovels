@@ -10,7 +10,7 @@ urlpatterns = [
     path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('social-login/google/', GoogleLogin.as_view(), name='google_login'),
-    path("intrest", UserIntrestView.as_view()),
+    path("interest", UserInterestView.as_view()),
 
     path('logout/', logout_user, name='logout'),
     path('register/' , RegisterView.as_view(), name = 'auth_register'),
