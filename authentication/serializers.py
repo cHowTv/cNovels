@@ -66,8 +66,13 @@ class InterestSerializers(serializers.Serializer):
     timeline = serializers.MultipleChoiceField(
                         choices = MY_CHOICES5)
 
+    
+
     def create(self, validated_data):
-        return UserIntrest.objects.create(**validated_data)
+        if UserIntrest.objects.filter(user=self.context["request"].user).exists():
+            raise serializers.ValidationError("User Already exists.")
+        user_attributes = UserIntrest.objects.create(**validated_data)
+        return user_attributes
 
 
 class ProfileSerializer(serializers.ModelSerializer):

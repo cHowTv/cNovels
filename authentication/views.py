@@ -159,11 +159,12 @@ class UserInterestView(APIView):
     def get(self, request):
         intrests = self.get_object()
         # serialize the intrests
-        serializer = IntrestSerializers(intrests)
+        serializer = InterestSerializers(intrests)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = IntrestSerializers(data=request.data)
+        # pass request to verify if user already posted
+        serializer = InterestSerializers(data=request.data,context={'request': request})
         if serializer.is_valid():
             serializer.save(user = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

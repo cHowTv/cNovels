@@ -111,7 +111,7 @@ class Novel(models.Model):
     #bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
     
 
-    date_uploaded = models.DateField(auto_now_add=True)
+    date_uploaded = models.DateTimeField(auto_now_add=True)
 
     bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
     
@@ -157,7 +157,7 @@ class Poems(models.Model):
      #if authors were to write instead of upload
      story = RichTextField(config_name='novellas')
 
-     date_uploaded = models.DateField(auto_now_add=True)
+     date_uploaded = models.DateTimeField(auto_now_add=True)
 
      bookImage = models.ImageField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
      
@@ -237,7 +237,7 @@ class Audio(models.Model):
     #will be parsed and restored into chapters later  
     bookFile = models.FileField(blank=False,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size])
 
-    date_uploaded = models.DateField(auto_now_add=True)
+    date_uploaded = models.DateTimeField(auto_now_add=True)
 
 #verify and default save later
     bookImage = models.FileField(default ='default_profile.jpg', upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
@@ -368,7 +368,7 @@ class Message(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=100)
-    time  = models.DateField()
+    time  = models.DateTimeField()
 
     def __str__(self):
         return self.name

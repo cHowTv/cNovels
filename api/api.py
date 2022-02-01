@@ -83,7 +83,7 @@ class PoemsListView(generics.ListAPIView):
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 def home(request):
     '''
-    Displays Genres , Weely Novels , Audios , Special Features, Authors .....
+    Displays Genres , Weekly Novels , Audios , Special Features, Authors .....
 
     Sends back all the genres listed also .
 
@@ -225,7 +225,7 @@ class BookStatusUpdate(APIView):
 class AuthorView(APIView):
     """"
     Author Bio 
-    Return Number of books , best selling books , genres, new , most popular, number of read,
+    Return Number of books , best selling books , genres, new , most popular, number of his/her books read,
     """
     permission_classes = [permissions.AllowAny]
     def get_object(self, pk):
@@ -257,14 +257,28 @@ class CurrentUser(APIView):
 class CreateBook(APIView):
     """
     Allows Authors to create their novels 
+    By Sending Post Request , Lists All Authors Book By Sending Get Request
     """
     permission_classes = (permissions.IsAuthenticated,AuthorOrReadOnly)
     serializer_class = NovelSerializer
+
+    def get_object(self):
+        try:
+            books = Novel.objects.filter(created_author=self.request.user)
+            
+        except :
+            raise Http404
+        return books
+
     def post(self, request):
         serializer = NovelSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user = request.user)
+            serializer.save(created_author = request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get(self, request):
+        books = self.get_object()
+        serializer = NovelSerializer(books, many=True)
+        return Response(serializer.data)
 

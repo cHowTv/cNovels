@@ -50,7 +50,7 @@ class NovelSerializer(serializers.ModelSerializer):
     date_uploaded = serializers.DateTimeField(read_only=True)
     class Meta:
         model = Novel
-        exclude = ('created_author',)
+        exclude = ('created_author', 'id')
         
 
 class AudioSerializer(serializers.ModelSerializer):
