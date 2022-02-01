@@ -19,7 +19,7 @@ class AuthorOrReadOnly(permissions.BasePermission):
         return False
     # Check if user has access to the particular resource
     def has_object_permission(self, request, view, obj):
-        if request.user == obj.user:
+        if request.user == obj.created_author:
             return True
         return False
 
