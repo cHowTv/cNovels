@@ -12,7 +12,7 @@ urlpatterns = [
     path('social-login/google/', GoogleLogin.as_view(), name='google_login'),
     path("interest", UserInterestView.as_view()),
 
-    path('logout/', logout_user, name='logout'),
+    path('logout/', logout_user.as_view(), name='logout'),
     path('register/' , RegisterView.as_view(), name = 'auth_register'),
 #    path('activate/<uidb64>/<token>/', activateAccount, name='activate'),
     path('reset_password/',auth_views.PasswordResetView.as_view(template_name='novel/password_reset.html'), name='reset_password'),

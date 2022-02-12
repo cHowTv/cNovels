@@ -80,3 +80,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         exclude = ('user',)
+
+
+class LogOutSerializer(serializers.Serializer):
+    logout = serializers.BooleanField() 

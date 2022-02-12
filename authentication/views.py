@@ -4,8 +4,9 @@ from rest_framework import generics, serializers, status, parsers, viewsets
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import InterestSerializers, MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
+from .serializers import InterestSerializers, LogOutSerializer, MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -23,6 +24,8 @@ from novel.models import UserIntrest, Profile
 from django.contrib.auth import get_user_model
 from authentication.tokens import account_activation_token
 from django.http import HttpResponseForbidden
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+
 User = get_user_model()
 
 
@@ -105,10 +108,24 @@ User = get_user_model()
 
 #     return render(request, "bookshy/login.html", {"form": form, "msg" : msg})
     
-def logout_user(request):
-    if request.user.is_authenticated:
-        logout(request)
-    return redirect("/")
+class logout_user(APIView):
+    """
+    Logout By making a post request to logout , it logs user out of current session , 
+    logs current user out of all session by posting {logout : true }
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = LogOutSerializer
+
+    def post(self, request, *args, **kwargs):
+        if self.request.data.get('all_token'):
+            token: OutstandingToken
+            for token in OutstandingToken.objects.filter(user=request.user):
+                _, _ = BlacklistedToken.objects.get_or_create(token=token)
+            return Response({"status": "OK, goodbye, all current user's refresh tokens blacklisted"})
+        refresh_token = self.request.data.get('refresh_token')
+        token = RefreshToken(token=refresh_token)
+        token.blacklist()
+        return Response({"status": "OK, goodbye"})
 
 
 
@@ -142,6 +159,7 @@ class GoogleLogin(SocialLoginView):
     client_class = OAuth2Client
 
 
+# create user interest
 
 class UserInterestView(APIView):
     """
