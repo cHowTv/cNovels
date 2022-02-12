@@ -110,8 +110,8 @@ User = get_user_model()
     
 class logout_user(APIView):
     """
-    Logout By making a post request to logout , it logs user out of current session , 
-    logs current user out of all session by posting {logout : true }
+    Logs User out By making a post request to /logout/ (note: just an ordinary post request, it logs user out of current session ), 
+    the endpoint logs current user out of all session by posting {logout : true }
     """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = LogOutSerializer
