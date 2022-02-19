@@ -22,11 +22,56 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
 from novel.models import UserIntrest, Profile
 from django.contrib.auth import get_user_model
-from authentication.tokens import account_activation_token
 from django.http import HttpResponseForbidden
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
 User = get_user_model()
+from django.core.mail import EmailMultiAlternatives
+from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.contrib.auth.tokens import default_token_generator
+from django_rest_passwordreset.signals import reset_password_token_created
+
+
+@receiver(reset_password_token_created)
+def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+    """
+    Handles password reset tokens
+    When a token is created, an e-mail needs to be sent to the user
+    :param sender: View Class that sent the signal
+    :param instance: View Instance that sent the signal
+    :param reset_password_token: Token Model Object
+    :param args:
+    :param kwargs:
+    :return:
+    """
+    # send an e-mail to the user
+    context = {
+        'current_user': reset_password_token.user,
+        'username': reset_password_token.user.username,
+        'email': reset_password_token.user.email,
+        'reset_password_url': "{}?token={}".format(
+            instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
+            reset_password_token.key)
+    }
+
+    # render email text
+    email_html_message = render_to_string('email/user_reset_password.html', context)
+    email_plaintext_message = render_to_string('email/user_reset_password.txt', context)
+
+    msg = EmailMultiAlternatives(
+        # title:
+        "Password Reset for {title}".format(title="Some website title"),
+        # message:
+        email_plaintext_message,
+        # from:
+        "noreply@somehost.local",
+        # to:
+        [reset_password_token.user.email]
+    )
+    msg.attach_alternative(email_html_message, "text/html")
+    msg.send()
 
 
 # # Create your views here.
@@ -218,4 +263,19 @@ class ProfileViewset(APIView):
 
     
     
- 
+class VerifyAccount(APIView):
+    """
+    Allows Users To be activated after registration , by clicking link sent to their mail 
+    """
+    def get(self,request, uidb64, token):
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+             user = None
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.email_confirmed = True
+            user.save()
+            return Response("user activated , you can log in now")
+        return Response('Token is invalid or expired. Please request another confirmation email by signing in.', status=status.HTTP_400_BAD_REQUEST)

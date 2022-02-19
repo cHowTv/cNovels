@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "dj_rest_auth.registration",
     "allauth.socialaccount",
+     'django_rest_passwordreset',
     'rest_framework_simplejwt.token_blacklist',
    "allauth.socialaccount.providers.google",
 ]
@@ -129,6 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Internationalization

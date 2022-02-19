@@ -1,5 +1,5 @@
-from django.urls import path
-from .views import GoogleLogin, MyTokenObtainPairView, ProfileViewset, RegisterView, UserInterestView,  logout_user
+from django.urls import path, include
+from .views import GoogleLogin,VerifyAccount, MyTokenObtainPairView, ProfileViewset, RegisterView, UserInterestView,  logout_user
 from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -14,10 +14,7 @@ urlpatterns = [
 
     path('logout/', logout_user.as_view(), name='logout'),
     path('register/' , RegisterView.as_view(), name = 'auth_register'),
-#    path('activate/<uidb64>/<token>/', activateAccount, name='activate'),
-    path('reset_password/',auth_views.PasswordResetView.as_view(template_name='novel/password_reset.html'), name='reset_password'),
-    path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(template_name='novel/password_reset_sent.html'), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='novel/password_reset_form.html'), name='password_reset_confirm'),
-    path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='novel/password_reset_done.html'), name='password_reset_complete'),
-    path('author-profile/', ProfileViewset.as_view())
+    path('reset_password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('author_profile/', ProfileViewset.as_view()),
+    path('activate/<uidb64>/<token>/',VerifyAccount.as_view() )
 ]
