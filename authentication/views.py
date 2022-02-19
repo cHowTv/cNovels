@@ -1,3 +1,4 @@
+from base64 import urlsafe_b64decode
 from django.http.response import Http404
 from authentication.permissions import AuthorOrReadOnly
 from rest_framework import generics, serializers, status, parsers, viewsets
@@ -24,7 +25,7 @@ from novel.models import UserIntrest, Profile
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
-
+from django.utils.encoding import force_str
 User = get_user_model()
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
@@ -236,6 +237,9 @@ class UserInterestView(APIView):
 
 # Create Author Profile 
 class ProfileViewset(APIView):
+    """
+    Create Author's Profile 
+    """
     permission_classes = (AuthorOrReadOnly,)
     serializer_class = ProfileSerializer
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
@@ -265,11 +269,11 @@ class ProfileViewset(APIView):
     
 class VerifyAccount(APIView):
     """
-    Allows Users To be activated after registration , by clicking link sent to their mail 
+    Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification
     """
     def get(self,request, uidb64, token):
         try:
-            uid = force_text(urlsafe_base64_decode(uidb64))
+            uid = force_str(urlsafe_b64decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
              user = None
