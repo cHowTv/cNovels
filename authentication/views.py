@@ -271,6 +271,7 @@ class VerifyAccount(APIView):
     """
     Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification
     """
+    permission_classes = (AllowAny,)
     def get(self,request, uidb64, token):
         try:
             uid = force_str(urlsafe_b64decode(uidb64))
