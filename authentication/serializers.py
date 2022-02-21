@@ -20,6 +20,28 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         return token
 
+    def validate(self, attrs):
+        credentials = {
+            'username': '',
+            'password': attrs.get("password")
+        }
+
+        user = User.objects.filter(username=attrs.get("username")).first()
+        try:
+            verified = user.email_confirmed or user.is_active
+        except: 
+            verified = False
+
+        if verified and user:
+            credentials['username'] = user.username
+            return super().validate(credentials)
+
+        elif user and user.check_password(credentials['password']) and not verified:
+            return {'message': 'Email not verified'}
+        else:
+            return {'message': 'No active account found with the given credentials'}
+
+
     
 
 class RegisterSerializer(serializers.ModelSerializer):
