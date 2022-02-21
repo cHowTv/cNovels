@@ -206,9 +206,11 @@ class Profile(models.Model):
 class UserBook(models.Model):
     STATUS_UNREAD = 'u'
     STATUS_READ = 'r'
+    STATUS_FINISHED = 'f'
     STATUS_CHOICES = [
         (STATUS_UNREAD, 'unread'),
         (STATUS_READ, 'read'),
+        (STATUS_FINISHED, 'finished'),
     ]
     book = models.ForeignKey(Novel, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

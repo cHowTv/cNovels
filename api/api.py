@@ -137,13 +137,13 @@ class ReadChapter(APIView):
         user =request.user.recently_viewed_chapters
         if pk:
             try:
-                chapter =book.books.get(pk=pk)
+                chapter = book.books.get(pk=pk)
                 
             except ObjectDoesNotExist:
                 raise Http404
             
             try :
-                #if a chapter of the book exist , just update
+                # if a chapter of the book exist , just update
                 novel = user.get(novel=book)
                 user.remove(novel)
                 user.add(chapter)
@@ -175,7 +175,10 @@ class ReadChapter(APIView):
 class BookStatusUpdate(APIView):
 
     """
-    Returns completed Novels and still reading (that is unread novels)...
+    Returns completed Novels and still reading novels and unread novels (that is unread novels)...
+    book_status/ (returns finished and still reading books , check state)
+    book_status/unread (returns unread books)
+
     also uses the put request to update state of the novel , upon completion users can put a request to change the state of the novel 
     they have finished reading
     """
@@ -196,14 +199,15 @@ class BookStatusUpdate(APIView):
 
         instance = self.get_object()
         # print(instance)
-        if book:
-            books = instance.filter(state='u')
-            serializer = UserNovelSerializer(books, many=True)
-            return Response(serializer.data)
-
-        books = instance.filter(state='r')
-        serializer = UserNovelSerializer(books, many=True)
-        return Response(serializer.data)
+      
+            
+        unread = instance.filter(state='u')
+        reading = instance.filter(state='r')
+        finished = instance.filter(state='f')
+        serializeru = UserNovelSerializer(unread, many=True)
+        serializerf = UserNovelSerializer(finished, many=True)
+        serializer = UserNovelSerializer(reading, many=True)
+        return Response({'still reading':serializer.data, 'finished reading':serializerf.data, 'unread books':serializeru.data})
         
 
     def put(self, request, book, format=None):

@@ -37,6 +37,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             return super().validate(credentials)
 
         elif user and user.check_password(credentials['password']) and not verified:
+            # Resend verification Email
             return {'message': 'Email not verified'}
         else:
             return {'message': 'No active account found with the given credentials'}
