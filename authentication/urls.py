@@ -10,11 +10,11 @@ urlpatterns = [
     path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('social-login/google/', GoogleLogin.as_view(), name='google_login'),
-    path("interest", UserInterestView.as_view()),
+    path("interest", UserInterestView.as_view(), name='interest'),
 
     path('logout/', logout_user.as_view(), name='logout'),
     path('register/' , RegisterView.as_view(), name = 'auth_register'),
     path('reset_password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('author_profile/', ProfileViewset.as_view()),
-    path('activate/<uidb64>/<token>/',VerifyAccount.as_view() )
+    path('activate/<int:uidb64>/<token>/',VerifyAccount.as_view(), name='activate' )
 ]

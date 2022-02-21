@@ -189,7 +189,9 @@ class RegisterView(generics.CreateAPIView):
     """
 
     Register with your username, email and password,
-    User Wont be able to log in until after verification
+    User Wont be able to log in until after verification.
+    Send User To Confirm page view
+    # Work on resending mail
     
     """
     queryset = User.objects.all()
@@ -269,12 +271,13 @@ class ProfileViewset(APIView):
     
 class VerifyAccount(APIView):
     """
-    Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification
+    Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification.
+    Returns Interest endpoint to continue 
     """
     permission_classes = (AllowAny,)
     def get(self,request, uidb64, token):
         try:
-            uid = force_str(urlsafe_b64decode(uidb64))
+            uid = uidb64
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
              user = None
@@ -282,5 +285,6 @@ class VerifyAccount(APIView):
             user.is_active = True
             user.email_confirmed = True
             user.save()
-            return Response("user activated , you can log in now")
+            data  = reverse_lazy('interest')
+            return Response(f'redirect to {data}')
         return Response('Token is invalid or expired. Please request another confirmation email by signing in.', status=status.HTTP_400_BAD_REQUEST)

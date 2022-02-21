@@ -9,7 +9,7 @@ from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOI
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
-
+from rest_framework.reverse import reverse
 
 User = get_user_model()
 
@@ -19,6 +19,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
         token['username'] = user.username
         return token
+
+    
 
 class RegisterSerializer(serializers.ModelSerializer):
     email  =  serializers.EmailField(
@@ -59,6 +61,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         current_site = get_current_site(self.context["request"])
         subject = 'Activate Your MySite Account'
         #actiavation_link = f'{activate_link_url}/user_id={user.i}&confirmation_token={confirmation_token}'
+        data = {
+            'verification url': reverse('activate', args=[user.pk, confirmation_token], request=self.context["request"])
+        }
+        print(data)
         message = render_to_string('emails/account_activation_email.html', {
             'user': user,
             'domain': current_site.domain,
