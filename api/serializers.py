@@ -28,6 +28,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class WeeklySerializer(serializers.ModelSerializer):
     class Meta:
         model = Weekly
+        depth = 1
         fields = '__all__'
 
 

@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin
 
 
 
-from .models import Chapters, Event, Genre, GroupChat, Message, Novel, Profile, Room, User, UserIntrest, Weekly, UserBook
+from .models import Audio, Chapters, Event, Genre, GroupChat, Message, Novel, Poems, Profile, Room, User, UserIntrest, Weekly, UserBook
 
 admin.site.register(User)
 admin.site.register(Weekly)
@@ -20,4 +20,6 @@ admin.site.register(Message)
 admin.site.register(GroupChat)
 admin.site.register(Event)
 admin.site.register(UserBook)
+admin.site.register(Audio)
+admin.site.register(Poems)
 admin.site.register(UserIntrest)
