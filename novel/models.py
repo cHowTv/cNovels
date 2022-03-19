@@ -333,11 +333,11 @@ class User(AbstractUser):
 #weekly shoutouts , these should be based on "most rated" 
 
 class Weekly(models.Model):
-    novels_of_week = models.ForeignKey(Novel,blank=True, on_delete=models.CASCADE, related_name='weeknovel')
-    poems_of_week = models.ForeignKey(Poems,blank=True, on_delete=models.CASCADE, related_name='weekpoems')
-    audios_of_week = models.ForeignKey(Audio,blank=True, on_delete=models.CASCADE, related_name='weekaudios')
-    special_feature = models.ForeignKey(Novel,blank=True, on_delete=models.CASCADE, related_name='weekspecial')
-    authors_of_week = models.ForeignKey(Profile,blank=True, on_delete=models.CASCADE, related_name='weekauthors')
+    novels_of_week = models.ManyToManyField(Novel,blank=True, related_name='weeknovel')
+    poems_of_week = models.ManyToManyField(Poems,blank=True,  related_name='weekpoems')
+    audios_of_week = models.ManyToManyField(Audio,blank=True, related_name='weekaudios')
+    special_feature = models.ManyToManyField(Novel,blank=True, related_name='weekspecial')
+    authors_of_week = models.ManyToManyField(Profile,blank=True, related_name='weekauthors')
     def __str__(self):
         return f"{self.novels_of_week}"
 
