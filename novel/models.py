@@ -335,7 +335,7 @@ class User(AbstractUser):
 class Weekly(models.Model):
     novels_of_week = models.ManyToManyField(Novel,blank=True, related_name='weeknovel')
     poems_of_week = models.ManyToManyField(Poems,blank=True,  related_name='weekpoems')
-    audios_of_week = models.ManyToManyField(Audio,blank=True, related_name='weekaudios')
+    audios_of_week = models.ManyToManyField(Audio,blank=True,null=True related_name='weekaudios')
     special_feature = models.ManyToManyField(Novel,blank=True, related_name='weekspecial')
     authors_of_week = models.ManyToManyField(Profile,blank=True, related_name='weekauthors')
     def __str__(self):
