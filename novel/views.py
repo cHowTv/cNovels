@@ -16,6 +16,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView,
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.inspectors import SwaggerAutoSchema
 
 User = get_user_model()
 # Connect to our Redis instance
@@ -28,6 +29,7 @@ class GroupCreateAPIView(CreateAPIView):
     queryset = Room.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
+    my_tags = ['Community']
 
     def perform_create(self, serializer):
         
@@ -37,12 +39,22 @@ class GroupCreateAPIView(CreateAPIView):
         redis_client.sadd(f"user:{self.request.user.id}:rooms", f"{serializer.id}")
       
 
+class CustomAutoSchema(SwaggerAutoSchema):
+
+    def get_tags(self, operation_keys=None):
+        tags = self.overrides.get('tags', None) or getattr(self.view, 'my_tags', [])
+        if not tags :
+            tags = [operation_keys[0]]
+        return tags
+
 
 #Members list Group
 class GroupMembersList(RetrieveAPIView):
     queryset = GroupChat.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
+    my_tags = ['Community']
+
     def get_object(self,room):
        # room = self.request.data.get('room')
         query = get_object_or_404(GroupChat, room__name=room)
@@ -63,6 +75,7 @@ class GroupJoinAPIView(APIView):
     and get query should list all current group of user 
     """
     permission_classes = [IsAuthenticated]
+    my_tags = ['Community']
 #    serializer_class = JoinGroupSerializer
 
     def get_object(self,room):
@@ -113,8 +126,11 @@ class GroupJoinAPIView(APIView):
 #add other admins
 class AddAdminView(APIView):
     #check if user is admin
+
     serializer_class = JoinGroupSerializer
     permission_classes = [GroupOwners]
+    my_tags = ['Community']
+
     def get_object(self,room):
         try:
             queryset = Room.objects.get(name = room)
@@ -171,6 +187,8 @@ class DeleteGroup(APIView):
     
     '''
     permission_classes = [GroupCreator]
+    my_tags = ['Community']
+    
     def get_object(self,room):
         try:
             queryset = Room.objects.get(name = room)

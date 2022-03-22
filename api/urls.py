@@ -16,7 +16,7 @@ urlpatterns = [
     path('novel-search/', NovelSearchView.as_view()),
     path('poem-search/', PoemsSearchView.as_view()),
     path('recent_novels/', RecentReadViewSet.as_view()),
-    path('', home),
+    path('home/', home),
     path('read/<slug:book>',ReadChapter.as_view()),
     path('read/<slug:book>/<int:pk>',ReadChapter.as_view()),
     path('book_status',BookStatusUpdate.as_view()),

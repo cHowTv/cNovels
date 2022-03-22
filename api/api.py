@@ -22,6 +22,7 @@ class NovelRealease(generics.ListAPIView):
     queryset = Novel.objects.all().order_by('-date_uploaded')
     serializer_class = NovelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    my_tags = ['Home']
     
 
 class NovelSearchView(generics.ListAPIView):
@@ -39,6 +40,7 @@ class NovelSearchView(generics.ListAPIView):
     permission_classes =[permissions.AllowAny,]
     filter_backends = [DjangoFilterBackend]
     filter_class = NovelFilter
+    my_tags = ['Home', 'Search']
     #search_fields = ['title', 'author__authorName', 'genre__name', 'books__title']
  
 
@@ -56,6 +58,7 @@ class PoemsSearchView(generics.ListAPIView):
     serializer_class = PoemSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'authorName', 'genre', 'chapter_title']
+    my_tags = ['Home', 'Search']
 
 class AudiosListView(generics.ListAPIView):
     """
@@ -65,6 +68,7 @@ class AudiosListView(generics.ListAPIView):
     serializer_class = AudioSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'authorName', 'genre', 'chapter_title']
+    my_tags = ['Author']
 
 
 class PoemsListView(generics.ListAPIView):
@@ -77,10 +81,15 @@ class PoemsListView(generics.ListAPIView):
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'authorName', 'genre', 'chapter_title']
 
+from drf_yasg.utils import swagger_auto_schema
+
 
 @api_view(['GET'])
+@swagger_auto_schema(tags=['Home'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
+
+
 def home(request):
     '''
     Displays Genres , Weekly Novels , Audios , Special Features, Authors .....
@@ -106,6 +115,8 @@ class RecentReadViewSet(APIView):
     """
     
     permission_classes = [permissions.IsAuthenticated]
+    my_tags = ['Book', 'Home']
+
     def get(self, request):
         recent = request.user.recently_viewed_chapters.all()
         serializer = ChapterSerializer(recent, many=True)
@@ -122,6 +133,7 @@ class ReadChapter(APIView):
     
     """
     permission_classes = (permissions.IsAuthenticated,)
+    my_tags = ['Book']
     def get_object(self, book):
         try:
             novel = Novel.objects.get(slug=book)
@@ -185,6 +197,7 @@ class BookStatusUpdate(APIView):
     queryset = UserBook.objects.all()
     serializer_class = UserNovelSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    my_tags = ['Book']
 
     def get_object(self):    
         book = UserBook.objects.filter(user=self.request.user)
@@ -232,6 +245,7 @@ class AuthorView(APIView):
     Return Number of books , best selling books , genres, new , most popular, number of his/her books read,
     """
     permission_classes = [permissions.AllowAny]
+    my_tags = ['Author']
     def get_object(self, pk):
         try:
             author = Profile.objects.get(pk=pk)
@@ -252,6 +266,7 @@ class CurrentUser(APIView):
     Sends Current Logged in User Details User's Detail
     """
     permission_classes = (permissions.IsAuthenticated,)
+    my_tags = ['User', 'Home']
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
@@ -265,6 +280,7 @@ class CreateBook(APIView):
     """
     permission_classes = (permissions.IsAuthenticated,AuthorOrReadOnly)
     serializer_class = NovelSerializer
+    my_tags = ['Book']
 
     def get_object(self):
         try:

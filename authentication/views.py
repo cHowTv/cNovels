@@ -153,15 +153,20 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 #             msg = 'Error validating the form'    
 
 #     return render(request, "bookshy/login.html", {"form": form, "msg" : msg})
-    
+
+
+
 class logout_user(APIView):
+    
     """
     Logs User out By making a post request to /logout/ (note: just an ordinary post request, it logs user out of current session ), 
     the endpoint logs current user out of all session by posting {all-token : true }
     """
+    
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = LogOutSerializer
-
+    my_tags = ["Authentication"]
+    
     def post(self, request, *args, **kwargs):
         if self.request.data.get('all_token'):
             token: OutstandingToken
@@ -183,6 +188,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
     """
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
+    my_tags = ["Authentication"]
 
 
 class RegisterView(generics.CreateAPIView):
@@ -197,6 +203,7 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+    my_tags = ["Authentication"]
 
 
 
@@ -205,6 +212,7 @@ class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = "http://localhost:3000"
     client_class = OAuth2Client
+    my_tags = ["Authentication"]
 
 
 # create user interest
@@ -216,6 +224,8 @@ class UserInterestView(APIView):
     """
     serializer_class = InterestSerializers
     permission_classes = (permissions.IsAuthenticated,)
+    my_tags = ["Authentication"]
+
     def get_object(self):
         try:
             intrest = UserIntrest.objects.get(user=self.request.user)
@@ -245,6 +255,7 @@ class ProfileViewset(APIView):
     permission_classes = (AuthorOrReadOnly,)
     serializer_class = ProfileSerializer
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+    my_tags = ['Author']
    # http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_object(self):
@@ -275,6 +286,8 @@ class VerifyAccount(APIView):
     Returns Interest endpoint to continue 
     """
     permission_classes = (AllowAny,)
+    my_tags = ["Authentication"]
+
     def get(self,request, uidb64, token):
         try:
             uid = uidb64
