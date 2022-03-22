@@ -327,6 +327,7 @@ class User(AbstractUser):
     saved_poems = models.ManyToManyField(Poems,blank=True , related_name='saved_poems')
     last_searched = models.CharField(max_length=200,blank=True,unique=True, null=True)
     is_author = models.BooleanField(default=False)
+    has_interest = models.BooleanField(default=False)
     
     def __str__(self) -> str:
         return self.username

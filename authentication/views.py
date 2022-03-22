@@ -242,7 +242,10 @@ class UserInterestView(APIView):
         # pass request to verify if user already posted
         serializer = InterestSerializers(data=request.data,context={'request': request})
         if serializer.is_valid():
-            serializer.save(user = request.user)
+            user = request.user
+            serializer.save(user = user)
+            user.has_interest = True
+            user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -298,6 +301,19 @@ class VerifyAccount(APIView):
             user.is_active = True
             user.email_confirmed = True
             user.save()
-            data  = reverse_lazy('interest')
-            return Response(f'redirect to {data}')
+            return redirect('/verified-email-page')
         return Response('Token is invalid or expired. Please request another confirmation email by signing in.', status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+# w
+class VerifyPageView(APIView):
+    permission_classes = (AllowAny,)
+    my_tags = ["Authentication"]
+
+    def get(self, request):
+        if request.user.is_active:
+            return Response ( f'{request.user.email} is Active , Send to login page ')
+
+        return Response("No")
