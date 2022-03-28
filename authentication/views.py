@@ -33,6 +33,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.contrib.auth.tokens import default_token_generator
 from django_rest_passwordreset.signals import reset_password_token_created
+from novel.responses import  ProductXcodeAutoSchema
 
 
 @receiver(reset_password_token_created)
@@ -225,6 +226,7 @@ class UserInterestView(APIView):
     serializer_class = InterestSerializers
     permission_classes = (permissions.IsAuthenticated,)
     my_tags = ["Authentication"]
+    swagger_schema = ProductXcodeAutoSchema
 
     def get_object(self):
         try:

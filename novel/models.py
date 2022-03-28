@@ -111,7 +111,7 @@ class Novel(models.Model):
     #bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
     
 
-    date_uploaded = models.DateTimeField(auto_now_add=True)
+    date_uploaded = models.DateTimeField(null=False, blank=False, auto_now_add=True)
 
     bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
     
@@ -157,7 +157,7 @@ class Poems(models.Model):
      #if authors were to write instead of upload
      story = RichTextField(config_name='novellas')
 
-     date_uploaded = models.DateTimeField(auto_now_add=True)
+     date_uploaded = models.DateTimeField(null=False, blank=False,auto_now_add=True)
 
      bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size])
      
@@ -239,7 +239,7 @@ class Audio(models.Model):
     #will be parsed and restored into chapters later  
     bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size])
 
-    date_uploaded = models.DateTimeField(auto_now_add=True)
+    date_uploaded = models.DateTimeField(null=False, blank=False,auto_now_add=True)
 
 #verify and default save later
     bookImage = models.ImageField(null=True, blank=True, upload_to='book/images/', validators= [valid_image,valid_image_mimetype,valid_size]) 
@@ -336,7 +336,7 @@ class User(AbstractUser):
 class Weekly(models.Model):
     novels_of_week = models.ManyToManyField(Novel,blank=True, related_name='weeknovel')
     poems_of_week = models.ManyToManyField(Poems,blank=True,  related_name='weekpoems')
-    audios_of_week = models.ManyToManyField(Audio,blank=True,null=True ,related_name='weekaudios')
+    audios_of_week = models.ManyToManyField(Audio,blank=True, related_name='weekaudios')
     special_feature = models.ManyToManyField(Novel,blank=True, related_name='weekspecial')
     authors_of_week = models.ManyToManyField(Profile,blank=True, related_name='weekauthors')
     def __str__(self):
@@ -361,7 +361,7 @@ class Message(models.Model):
      sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')        
      receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')        
      message = models.CharField(max_length=1200)
-     timestamp = models.DateTimeField(auto_now_add=True)
+     timestamp = models.DateTimeField(null=False, blank=False,auto_now_add=True)
      is_read = models.BooleanField(default=False)
      def __str__(self):
            return self.message
@@ -372,7 +372,7 @@ class Message(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=100)
-    time  = models.DateTimeField()
+    time  = models.DateTimeField(null=False, blank=False)
 
     def __str__(self):
         return self.name
