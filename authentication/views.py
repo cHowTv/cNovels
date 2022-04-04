@@ -226,7 +226,7 @@ class UserInterestView(APIView):
     serializer_class = InterestSerializers
     permission_classes = (permissions.IsAuthenticated,)
     my_tags = ["Authentication"]
-    swagger_schema = ProductXcodeAutoSchema
+    swagger_schema = ProductXcodeAutoSchema ## -------------
 
     def get_object(self):
         try:

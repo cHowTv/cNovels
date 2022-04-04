@@ -56,20 +56,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         required = True,
         validators = [validate_password]
     )
-    password2 = serializers.CharField(
-        write_only = True,
-        required = True,
-       
-    )
+    
 
     class Meta :
         model = User 
         fields = ('username','email', 'password', 'password2')
 
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password":"password field didnt match"})
-        return attrs
 
 
     def create(self, validated_data):
