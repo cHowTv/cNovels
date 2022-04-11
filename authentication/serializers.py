@@ -1,5 +1,8 @@
 from base64 import urlsafe_b64encode
+import email
+from os import access
 from django.contrib.auth.password_validation import validate_password
+from requests import Response
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
@@ -10,6 +13,7 @@ from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.reverse import reverse
+from rest_framework import status
 
 User = get_user_model()
 
@@ -39,9 +43,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         elif user and user.check_password(credentials['password']) and not verified:
             # Resend verification Email
-            return {'message': 'Email not verified'}
+            return Response({'message': 'Email not verified'}, status = status.HTTP_401_UNAUTHORIZED )
         else:
-            return {'message': 'No active account found with the given credentials'}
+            return Response({'message': 'No active account found with the given credentials'}, status=status.HTTP_404_NOT_FOUND)
 
 
     
@@ -80,7 +84,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         data = {
             'verification url': reverse('activate', args=[user.pk, confirmation_token], request=self.context["request"])
         }
-        print(data)
+        
         message = render_to_string('emails/account_activation_email.html', {
             'user': user,
             'domain': current_site.domain,
@@ -88,7 +92,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'token': confirmation_token,
         })
         user.email_user(subject, message)
-        return user 
+        return user
 
 class InterestSerializers(serializers.Serializer):
     hobbies = serializers.MultipleChoiceField(
@@ -105,8 +109,8 @@ class InterestSerializers(serializers.Serializer):
     
 
     def create(self, validated_data):
-        if UserIntrest.objects.filter(user=self.context["request"].user).exists():
-            raise serializers.ValidationError("User Already exists.")
+        if self.context["request"].user.has_interest:
+            raise serializers.ValidationError("User Already Registered Intrest.")
         user_attributes = UserIntrest.objects.create(**validated_data)
         return user_attributes
 
@@ -119,4 +123,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class LogOutSerializer(serializers.Serializer):
-    all_token = serializers.BooleanField() 
+    clear_all_token = serializers.BooleanField() 
+
+class LoginResponseSerializer(serializers.Serializer):
+    refresh = serializers.CharField(max_length=200)
+    access =  serializers.CharField(max_length=200)
+
+class RegisterResponseSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=200)
+    email = serializers.CharField(max_length=200)

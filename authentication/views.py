@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import InterestSerializers, LogOutSerializer, MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
+from .serializers import InterestSerializers, LogOutSerializer, LoginResponseSerializer, MyTokenObtainPairSerializer, ProfileSerializer, RegisterResponseSerializer, RegisterSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -34,6 +34,9 @@ from django.urls import reverse
 from django.contrib.auth.tokens import default_token_generator
 from django_rest_passwordreset.signals import reset_password_token_created
 from novel.responses import  ProductXcodeAutoSchema
+from drf_yasg.utils import swagger_auto_schema
+from django.utils.decorators import method_decorator
+
 
 
 @receiver(reset_password_token_created)
@@ -156,7 +159,9 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 #     return render(request, "bookshy/login.html", {"form": form, "msg" : msg})
 
 
-
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    responses={200: LogOutSerializer}
+))
 class logout_user(APIView):
     
     """
@@ -169,7 +174,7 @@ class logout_user(APIView):
     my_tags = ["Authentication"]
     
     def post(self, request, *args, **kwargs):
-        if self.request.data.get('all_token'):
+        if self.request.data.get('clear_all_token'):
             token: OutstandingToken
             for token in OutstandingToken.objects.filter(user=request.user):
                 _, _ = BlacklistedToken.objects.get_or_create(token=token)
@@ -177,10 +182,12 @@ class logout_user(APIView):
         refresh_token = self.request.data.get('refresh_token')
         token = RefreshToken(token=refresh_token)
         token.blacklist()
-        return Response({"status": "OK, goodbye"})
+        return Response({"status": "OK, goodbye"}, status= status.HTTP_401_UNAUTHORIZED)
 
 
-
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    responses={200: LoginResponseSerializer}
+))
 class MyTokenObtainPairView(TokenObtainPairView):
     """
     login by sending a post request containing username and password to login/
@@ -192,7 +199,12 @@ class MyTokenObtainPairView(TokenObtainPairView):
     my_tags = ["Authentication"]
 
 
+
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    responses={200: RegisterResponseSerializer}
+))
 class RegisterView(generics.CreateAPIView):
+    
     """
 
     Register with your username, email and password,
@@ -217,7 +229,12 @@ class GoogleLogin(SocialLoginView):
 
 
 # create user interest
-
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    responses={200: InterestSerializers}
+))
+@method_decorator(name='get', decorator=swagger_auto_schema(
+    responses={200: InterestSerializers}
+))
 class UserInterestView(APIView):
     """
     Allows Users to Add interest by using the post request,
@@ -253,6 +270,7 @@ class UserInterestView(APIView):
 
 
 # Create Author Profile 
+
 class ProfileViewset(APIView):
     """
     Create Author's Profile 
@@ -284,7 +302,9 @@ class ProfileViewset(APIView):
 
 
     
-    
+@method_decorator(name='get', decorator=swagger_auto_schema(
+    responses={301: "redirect to /verified-email-page"}
+))    
 class VerifyAccount(APIView):
     """
     Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification.

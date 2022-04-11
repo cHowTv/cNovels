@@ -20,6 +20,11 @@ schema_view = get_schema_view(
 )
 
 
+class CreatedResponseSerializer(serializers.Serializer):
+    """ This is a sample serializer for showing my intent """
+    id = serializers.CharField(
+        help_text=_("This is the `id` of created object.")
+    )
 class OKResponseSerializer(serializers.Serializer):
     """ This is a sample serializer for showing my intent """
     id = serializers.CharField(
@@ -55,7 +60,8 @@ class XcodeAutoSchema(SwaggerAutoSchema):
     @classmethod
     def responses(cls):
         return {
-            201: OKResponseSerializer(),
+            201: CreatedResponseSerializer(),
+            200: OKResponseSerializer(),
             400: "bad request.", # you can use your own text or serializer
             401: "anauthorized request." # you can use your own text or serializer as well
         }
