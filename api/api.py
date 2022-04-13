@@ -6,7 +6,7 @@ from novel.models import Audio, Genre,Profile, Novel, Poems, Weekly, Chapters, U
 from rest_framework import generics, serializers, viewsets, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
-from .serializers import AudioSerializer, ChapterSerializer,UserNovelSerializer, AuthorSerializer, GenreSerializer, NovelSerializer, PoemSerializer, UserSerializer,  WeeklySerializer
+from .serializers import AudioSerializer, ChapterSerializer, HomeResponse,UserNovelSerializer, AuthorSerializer, GenreSerializer, NovelSerializer, PoemSerializer, UserSerializer,  WeeklySerializer
 from django.contrib.auth import get_user_model
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.views import APIView
@@ -82,10 +82,13 @@ class PoemsListView(generics.ListAPIView):
     search_fields = ['title', 'authorName', 'genre', 'chapter_title']
 
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
+user_response = openapi.Response('response description',  HomeResponse )
 
+@swagger_auto_schema(tags =["Home"], method='get', responses={200: user_response})
+# @swagger_auto_schema(method='get', responses={200: })
 @api_view(['GET'])
-@swagger_auto_schema(tags=['Home'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 

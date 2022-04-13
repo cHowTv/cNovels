@@ -306,6 +306,7 @@ class ProfileViewset(APIView):
     responses={301: "redirect to /verified-email-page"}
 ))    
 class VerifyAccount(APIView):
+    
     """
     Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification.
     Returns Interest endpoint to continue 

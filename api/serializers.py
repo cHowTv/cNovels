@@ -104,3 +104,8 @@ class AuthorSerializer(serializers.ModelSerializer):
     def get_total_readers(self, instance):
         readers = instance.profile.all().aggregate(num = Sum('readers_num'))
         return readers
+
+
+class HomeResponse(serializers.Serializer):
+    genre = GenreSerializer()
+    weekly = WeeklySerializer()
