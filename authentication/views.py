@@ -186,7 +186,7 @@ class logout_user(APIView):
 
 
 @method_decorator(name='post', decorator=swagger_auto_schema(
-    responses={200: LoginResponseSerializer}
+    responses={200: LoginResponseSerializer()}
 ))
 class MyTokenObtainPairView(TokenObtainPairView):
     """
