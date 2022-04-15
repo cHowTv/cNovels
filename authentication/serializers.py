@@ -15,7 +15,7 @@ from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import NotFound , PermissionDenied
+from rest_framework.exceptions import NotAuthenticated , PermissionDenied
 from rest_framework import status
 
 User = get_user_model()
@@ -47,10 +47,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         elif user and user.check_password(credentials['password']) and not verified:
             # Resend verification Email
             
-            raise PermissionDenied(detail = 'Email not verified')
+            raise NotAuthenticated(detail = 'Email not verified')
         else:
             # print(inspect.getfullargspec(NotFound))
-            raise NotFound(detail='No active account found with the given credentials')
+            raise PermissionDenied(detail='No active account found with the given credentials')
        
             
 
