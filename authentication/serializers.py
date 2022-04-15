@@ -1,5 +1,7 @@
 from base64 import urlsafe_b64encode
 import email
+from email.policy import HTTP
+import inspect
 from os import access
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
@@ -13,6 +15,7 @@ from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import NotFound
 from rest_framework import status
 
 User = get_user_model()
@@ -44,9 +47,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         elif user and user.check_password(credentials['password']) and not verified:
             # Resend verification Email
             content = {'message': 'Email not verified'}
-            return content
+            raise serializers.ValidationError(content) 
         else:
-            return {'message': 'No active account found with the given credentials'}
+            # print(inspect.getfullargspec(NotFound))
+            raise NotFound(detail='No active account found with the given credentials')
+       
+            
 
 
     
