@@ -2,7 +2,7 @@ from base64 import urlsafe_b64encode
 import email
 from os import access
 from django.contrib.auth.password_validation import validate_password
-from requests import Response
+from rest_framework.response import Response
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
