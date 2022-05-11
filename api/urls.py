@@ -15,7 +15,7 @@ urlpatterns = [
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('novel-search/', NovelSearchView.as_view()),
     path('poem-search/', PoemsSearchView.as_view()),
-    path('recent_novels/', RecentReadViewSet.as_view()),
+    path('recently_viewed/novels/', RecentReadViewSet.as_view()),
     path('home/', home),
     path('read/<slug:book>',ReadChapter.as_view()),
     path('read/<slug:book>/<int:pk>',ReadChapter.as_view()),
