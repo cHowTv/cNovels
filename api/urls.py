@@ -2,7 +2,7 @@ from django import urls
 from django.db import router
 from django.urls import include, path
 from rest_framework import routers
-from .api import BookStatusUpdate,GenreView, NovelSearchView, CurrentUser,PoemsSearchView, RecentReadViewSet, CreateBook, Home, ReadChapter, AuthorView
+from .api import BookStatusUpdate,GenreView,NovelRealease, NovelSearchView, CurrentUser,PoemsSearchView, RecentReadViewSet, CreateBook, Home, ReadChapter, AuthorView
 
 
 
@@ -13,9 +13,9 @@ from .api import BookStatusUpdate,GenreView, NovelSearchView, CurrentUser,PoemsS
 urlpatterns = [
     #path('people', home, name='people'),
     # path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('novel-search/', NovelSearchView.as_view()),
-    path('poem-search/', PoemsSearchView.as_view()),
-    
+    path('novel/search/', NovelSearchView.as_view()),
+    path('poem/search/', PoemsSearchView.as_view()),
+    path('novel/new/', NovelRealease.as_view()),
     path('recently_viewed/novels/', RecentReadViewSet.as_view()),
     path('home/', Home.as_view()),
     path('home/genre', GenreView.as_view()),

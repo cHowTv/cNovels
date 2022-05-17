@@ -39,6 +39,20 @@ class NovelSerializer(serializers.ModelSerializer):
     readers_num = serializers.IntegerField(read_only=True)
     slug = serializers.SlugField(read_only=True)
     date_uploaded = serializers.DateTimeField(read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        # Don't pass the 'fields' arg up to the superclass
+        fields = kwargs.pop('fields', None)
+
+        # Instantiate the superclass normally
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
     class Meta:
         model = Novel
         exclude = ('created_author', 'id')

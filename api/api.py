@@ -15,14 +15,24 @@ from api.filters import NovelFilter
 User = get_user_model()
 
 
-class NovelRealease(generics.ListAPIView):
+class NovelRealease(APIView):
     """
     Every Novel ordered accoring to date uploaded
     """
-    queryset = Novel.objects.all().order_by('-date_uploaded')
+    
     serializer_class = NovelSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     my_tags = ['Home']
+
+    def get(self, request):
+        queryset = Novel.objects.all().order_by('-date_uploaded')
+        print(queryset)
+        serializer = NovelSerializer(queryset,many=True, fields=('title', 'author'))
+        return Response(serializer.data)
+
+
+
+
     
 
 class NovelSearchView(generics.ListAPIView):
@@ -40,9 +50,10 @@ class NovelSearchView(generics.ListAPIView):
     permission_classes =[permissions.AllowAny,]
     filter_backends = [DjangoFilterBackend]
     filter_class = NovelFilter
-    my_tags = ['Home', 'Search']
+    my_tags = ['Search']
     #search_fields = ['title', 'author__authorName', 'genre__name', 'books__title']
  
+
 
 class PoemsSearchView(generics.ListAPIView):
     """
