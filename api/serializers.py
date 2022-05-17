@@ -101,27 +101,30 @@ class GenreSerializer(serializers.ModelSerializer):
         model = Genre
         fields = ['id', 'name']
         
-
+class AuthorHomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id' , 'authorName']
 
 class NovelHomeSerializer(serializers.ModelSerializer):
+    author = AuthorHomeSerializer()
     class Meta:
         model = Novel
         fields = ['id', 'title', 'author']
 
 class PoemHomeSerializer(serializers.ModelSerializer):
+    author = AuthorHomeSerializer()
     class Meta:
         model = Poems
         fields = ['id', 'title', 'author']
 
 class AudioHomeSerializer(serializers.ModelSerializer):
+    author = AuthorHomeSerializer()
     class Meta:
         model = Audio
         fields = ['id', 'title', 'author']
 
-class AuthorHomeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ['id' , 'authorName']
+
 
 
 class WeeklySerializer(serializers.ModelSerializer):
@@ -129,6 +132,7 @@ class WeeklySerializer(serializers.ModelSerializer):
     weekly_featured_poems = PoemHomeSerializer(read_only=True, many=True)
     weekly_featured_audios = AudioHomeSerializer(read_only=True, many=True)
     authors_of_week = AuthorHomeSerializer(read_only=True, many=True)
+    special_feature = NovelHomeSerializer(read_only=True, many=True)
     class Meta:
         model = Weekly
         depth = 1
