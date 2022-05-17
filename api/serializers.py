@@ -110,19 +110,19 @@ class NovelHomeSerializer(serializers.ModelSerializer):
     author = AuthorHomeSerializer()
     class Meta:
         model = Novel
-        fields = ['id', 'title', 'author']
+        fields = ['id', 'title', 'author', 'bookImage']
 
 class PoemHomeSerializer(serializers.ModelSerializer):
     author = AuthorHomeSerializer()
     class Meta:
         model = Poems
-        fields = ['id', 'title', 'author']
+        fields = ['id', 'title', 'author', 'bookImage']
 
 class AudioHomeSerializer(serializers.ModelSerializer):
     author = AuthorHomeSerializer()
     class Meta:
         model = Audio
-        fields = ['id', 'title', 'author']
+        fields = ['id', 'title', 'author', 'bookImage']
 
 
 
