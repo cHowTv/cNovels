@@ -1,3 +1,4 @@
+from importlib.metadata import files
 from django.contrib import auth
 from django.contrib.auth.models import  Group
 from django.contrib.contenttypes import fields
@@ -25,17 +26,6 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name']
 
 
-class WeeklySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Weekly
-        depth = 1
-        fields = '__all__'
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
-        fields = '__all__'
 
 
 class NovelAuthorSerializer(serializers.ModelSerializer):
@@ -106,6 +96,46 @@ class AuthorSerializer(serializers.ModelSerializer):
         return readers
 
 
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['id', 'name']
+        
+
+
+class NovelHomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Novel
+        fields = ['id', 'title', 'author']
+
+class PoemHomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Poems
+        fields = ['id', 'title', 'author']
+
+class AudioHomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
+        fields = ['id', 'title', 'author']
+
+class AuthorHomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id' , 'authorName']
+
+
+class WeeklySerializer(serializers.ModelSerializer):
+    weekly_featured_novels = NovelHomeSerializer(read_only=True, many=True)
+    weekly_featured_poems = PoemHomeSerializer(read_only=True, many=True)
+    weekly_featured_audios = AudioHomeSerializer(read_only=True, many=True)
+    authors_of_week = AuthorHomeSerializer(read_only=True, many=True)
+    class Meta:
+        model = Weekly
+        depth = 1
+        fields = '__all__'
+
 class HomeResponse(serializers.Serializer):
     genre = GenreSerializer()
     weekly = WeeklySerializer()
+
+

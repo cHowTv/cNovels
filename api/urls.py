@@ -2,7 +2,7 @@ from django import urls
 from django.db import router
 from django.urls import include, path
 from rest_framework import routers
-from .api import BookStatusUpdate, NovelSearchView, CurrentUser,PoemsSearchView, RecentReadViewSet, CreateBook, home, ReadChapter, AuthorView
+from .api import BookStatusUpdate,GenreView, NovelSearchView, CurrentUser,PoemsSearchView, RecentReadViewSet, CreateBook, Home, ReadChapter, AuthorView
 
 
 
@@ -17,7 +17,8 @@ urlpatterns = [
     path('poem-search/', PoemsSearchView.as_view()),
     
     path('recently_viewed/novels/', RecentReadViewSet.as_view()),
-    path('home/', home),
+    path('home/', Home.as_view()),
+    path('home/genre', GenreView.as_view()),
     path('read/<slug:book>',ReadChapter.as_view()),
     path('read/<slug:book>/<int:pk>',ReadChapter.as_view()),
     path('book_status',BookStatusUpdate.as_view()),

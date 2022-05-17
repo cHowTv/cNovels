@@ -3,10 +3,10 @@ from django.urls.base import clear_script_prefix
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from authentication.permissions import AuthorOrReadOnly
 from novel.models import Audio, Genre,Profile, Novel, Poems, Weekly, Chapters, UserBook
-from rest_framework import generics, serializers, viewsets, status, filters, permissions
+from rest_framework import generics,  status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
-from .serializers import AudioSerializer, ChapterSerializer, HomeResponse,UserNovelSerializer, AuthorSerializer, GenreSerializer, NovelSerializer, PoemSerializer, UserSerializer,  WeeklySerializer
+from .serializers import AudioSerializer, ChapterSerializer, HomeResponse,UserNovelSerializer, AuthorSerializer, GenreSerializer, NovelSerializer, PoemSerializer, UserSerializer, WeeklySerializer
 from django.contrib.auth import get_user_model
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication
 from rest_framework.views import APIView
@@ -84,16 +84,19 @@ class PoemsListView(generics.ListAPIView):
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-user_response = openapi.Response('response description',  HomeResponse )
+class GenreView(APIView):
+    """
+    Display Genres By Using The 
 
-@swagger_auto_schema(tags =["Home"], method='get', responses={200: user_response})
-# @swagger_auto_schema(method='get', responses={200: })
-@api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([permissions.IsAuthenticatedOrReadOnly])
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    my_tags=['Home']
+    def get(self, request):
+        genre = Genre.objects.all()
+        genre_serializer = GenreSerializer(genre, many=True)
+        return Response(genre_serializer.data)
 
-
-def home(request):
+class Home(APIView):
     '''
     Displays Genres , Weekly Novels , Audios , Special Features, Authors .....
 
@@ -102,12 +105,25 @@ def home(request):
     Designed For The Hopepage 
     
     '''
-    weekly = Weekly.objects.all()
-    week_serializer = WeeklySerializer(weekly, many=True)
-    genres  =  Genre.objects.all()
-    genre_serializer = GenreSerializer(genres, many=True)
-    # add blog
-    return Response({'genres':genre_serializer.data, 'weekly':week_serializer.data})
+    
+    permission_classes = [permissions.AllowAny]
+    my_tags = ['Home']
+
+    def get(self, request):
+        weekly = Weekly.objects.get()
+        
+        # print(genre)
+        weekly_serializer = WeeklySerializer(weekly)
+        # print(weekly_serializer)
+       
+
+        
+        # print(genre_serializer)
+        # serializer = HomeResponse(data ={'weekly':weekly_serializer, 'genre':genre_serializer})
+        
+        return Response(weekly_serializer.data)
+      
+
 
 
 

@@ -123,7 +123,7 @@ class GroupJoinAPIView(APIView):
         return 'not in room'
     
 
-#add other admins
+# add other admins
 class AddAdminView(APIView):
     #check if user is admin
 
@@ -180,7 +180,7 @@ def SaveGroupMessage(message):
 
 
     
-#delete group
+# delete group
 class DeleteGroup(APIView):
     '''
     delete group created
