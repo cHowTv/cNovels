@@ -27,3 +27,9 @@ urlpatterns = [
     path('current_user',CurrentUser.as_view()),
     path('upload_book', CreateBook.as_view())
 ]
+
+from django.conf.urls.static import static
+from django.conf import settings
+if settings.DEBUG:
+        urlpatterns += static(settings.MEDIA_URL,
+                              document_root=settings.MEDIA_ROOT)
