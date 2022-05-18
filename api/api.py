@@ -51,7 +51,7 @@ class NovelSearchView(generics.ListAPIView):
     permission_classes =[permissions.AllowAny,]
     filter_backends = [DjangoFilterBackend]
     filter_class = NovelFilter
-    my_tags = ['Search']
+    my_tags = ['Search', 'Home']
 
     def get_serializer_context(self):
         """

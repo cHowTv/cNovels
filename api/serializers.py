@@ -43,8 +43,6 @@ class NovelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass
         fields = kwargs.pop('context', None)
-       
-
         # Instantiate the superclass normally
         super().__init__(*args, **kwargs)
 
