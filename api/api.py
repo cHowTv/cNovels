@@ -53,6 +53,15 @@ class NovelSearchView(generics.ListAPIView):
     filter_class = NovelFilter
     my_tags = ['Search']
 
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return  ('title', 'author')
+            
+        
+
+
 
  
 class PoemsSearchView(generics.ListAPIView):
