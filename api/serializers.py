@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from novel.models import *
 from django.db.models import Sum 
 
+
 User = get_user_model()
 
 
@@ -119,23 +120,32 @@ class AuthorHomeSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id' , 'authorName']
 
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = '__all__'
+
+
 class NovelHomeSerializer(serializers.ModelSerializer):
     author = AuthorHomeSerializer()
+    ratings = RatingSerializer()
     class Meta:
         model = Novel
-        fields = ['id', 'title', 'author', 'bookImage']
+        fields = ['id', 'title', 'author', 'ratings', 'bookImage']
 
 class PoemHomeSerializer(serializers.ModelSerializer):
     author = AuthorHomeSerializer()
+    ratings = RatingSerializer()
     class Meta:
         model = Poems
-        fields = ['id', 'title', 'author', 'bookImage']
+        fields = ['id', 'title', 'author', 'ratings', 'bookImage']
 
 class AudioHomeSerializer(serializers.ModelSerializer):
     author = AuthorHomeSerializer()
+    ratings = RatingSerializer()
     class Meta:
         model = Audio
-        fields = ['id', 'title', 'author', 'bookImage']
+        fields = ['id', 'title', 'author', 'ratings', 'bookImage']
 
 
 
