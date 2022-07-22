@@ -5,6 +5,7 @@ from django.db.models.fields.related import ManyToManyField
 from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
+from numpy import void
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from PIL import Image
@@ -316,7 +317,7 @@ class UserIntrest(models.Model):
     timeline = MultiSelectField(choices=MY_CHOICES5, blank=True, max_length=3)
 
 
-
+from django.core.mail import send_mail
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     favorite = models.ManyToManyField(Novel,blank=True)
@@ -331,6 +332,10 @@ class User(AbstractUser):
     
     def __str__(self) -> str:
         return self.username
+
+    def mail_user(self, subject, message) -> None :
+        send_mail(subject,message, [self.email])
+
 #weekly shoutouts , these should be based on "most rated" 
 
 class Weekly(models.Model):

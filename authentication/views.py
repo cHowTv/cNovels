@@ -36,6 +36,9 @@ from django_rest_passwordreset.signals import reset_password_token_created
 from novel.responses import  ProductXcodeAutoSchema
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.decorators import method_decorator
+from django.core.mail import send_mail
+send_mail('Subject here', 'Here is the message.', 'from@example.com', ['to@example.com'], fail_silently=False)
+
 
 
 

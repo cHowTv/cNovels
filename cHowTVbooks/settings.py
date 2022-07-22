@@ -132,7 +132,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -246,3 +247,11 @@ REDOC_SETTINGS = {
    'LAZY_RENDERING': False,
    
 }
+
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'seehowtv@gmail.com' # this is exactly the value 'apikey'
+EMAIL_HOST_PASSWORD = 'sspidqrzynuvbstg'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

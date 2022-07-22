@@ -96,7 +96,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             'user': user,
             'domain': current_site.domain,
             'uid': urlsafe_b64encode(force_bytes(user.pk)),
-            'token': confirmation_token,
+            'token': data,
         })
         user.email_user(subject, message)
         return user
