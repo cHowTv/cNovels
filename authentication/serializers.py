@@ -92,12 +92,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             'verification url': reverse('activate', args=[user.pk, confirmation_token], request=self.context["request"])
         }
         
-        message = render_to_string('emails/account_activation_email.html', {
-            'user': user,
-            'domain': current_site.domain,
-            'uid': urlsafe_b64encode(force_bytes(user.pk)),
-            'token': data,
-        })
+        message = f"{user} a {current_site.domain}  and {urlsafe_b64encode(force_bytes(user.pk))} and {data}"
+            
+        
+        print(message)
         user.email_user(subject, message)
         return user
 

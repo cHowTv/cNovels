@@ -333,7 +333,7 @@ class User(AbstractUser):
         return self.username
 
     def mail_user(self, subject, message) -> None :
-        send_mail(subject,message, [self.email], fail_silently=False)
+        send_mail(subject,message, "reply.seehowtv@gmail.com" [self.email], fail_silently=False)
 
 #weekly shoutouts , these should be based on "most rated" 
 

@@ -325,7 +325,7 @@ class VerifyAccount(APIView):
             user.is_active = True
             user.email_confirmed = True
             user.save()
-            return redirect('/verified-email-page')
+            return redirect('/auth/verify')
         return Response('Token is invalid or expired. Please request another confirmation email by signing in.', status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -340,4 +340,4 @@ class VerifyPageView(APIView):
         if request.user.is_active:
             return Response ( f'{request.user.email} is Active , Send to login page ')
 
-        return Response("No")
+        return Response("No, user is inactive")
