@@ -14,6 +14,10 @@ from datetime import timedelta
 from pathlib import Path
 import os
 import django_heroku
+from os import environ as env
+
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,8 +28,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'wbnmxg&v=tc^vdqm8w2sho=4$qfiwex-v6e!a6*4v&dkj5#2y3'
 
+SECRET_KEY = env['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -248,10 +252,12 @@ REDOC_SETTINGS = {
    
 }
 
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'seehowtv@gmail.com' # this is exactly the value 'apikey'
-EMAIL_HOST_PASSWORD = 'sspidqrzynuvbstg'
-EMAIL_PORT = 587
+EMAIL_BACKEND = env['EMAIL_BACKEND']
+EMAIL_HOST = env['EMAIL_HOST']
 EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = env['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = env['EMAIL_HOST_PASSWORD']
+
+

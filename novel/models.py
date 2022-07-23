@@ -5,7 +5,6 @@ from django.db.models.fields.related import ManyToManyField
 from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
-from numpy import void
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from PIL import Image
@@ -334,7 +333,7 @@ class User(AbstractUser):
         return self.username
 
     def mail_user(self, subject, message) -> None :
-        send_mail(subject,message, [self.email])
+        send_mail(subject,message, [self.email], fail_silently=False)
 
 #weekly shoutouts , these should be based on "most rated" 
 

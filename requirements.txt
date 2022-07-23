@@ -46,3 +46,4 @@ drf-yasg
 gunicorn
 django-filter==21.1
 django-rest-passwordreset
+python-dotenv
