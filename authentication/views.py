@@ -334,7 +334,7 @@ class VerifyAccount(APIView):
 
 # w
 class VerifyPageView(APIView):
-    permission_classes = (AllowAny,IsAuthenticated)
+    permission_classes = (AllowAny|IsAuthenticated,)
     my_tags = ["Authentication"]
 
     def get(self, request, userid=None):
