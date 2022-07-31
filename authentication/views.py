@@ -1,9 +1,10 @@
 from base64 import urlsafe_b64decode
 from django.http.response import Http404
+from requests import request
 from authentication.permissions import AuthorOrReadOnly
 from rest_framework import generics, serializers, status, parsers, viewsets
 from rest_framework import permissions
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -320,12 +321,12 @@ class VerifyAccount(APIView):
             uid = uidb64
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-             user = None
+            user = None
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
             user.email_confirmed = True
             user.save()
-            return redirect('/auth/verify')
+            return redirect('verified-email-page', userid=uid)
         return Response('Token is invalid or expired. Please request another confirmation email by signing in.', status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -333,11 +334,17 @@ class VerifyAccount(APIView):
 
 # w
 class VerifyPageView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny,IsAuthenticated)
     my_tags = ["Authentication"]
 
-    def get(self, request):
-        if request.user.is_active:
-            return Response ( f'{request.user.email} is Active , Send to login page ')
+    def get(self, request, userid=None):
+        user = request.user
+        if user.is_anonymous:    
+            try:
+                user = User.objects.get(pk=userid)
+            except Exception:
+                return Response("Check User Id")
+        if user.is_active:
+            return Response ( f'{user.email} is Active , Send to login page ')
 
         return Response("No, user is inactive")
