@@ -345,6 +345,6 @@ class VerifyPageView(APIView):
             except Exception:
                 return Response("Check User Id")
         if user.is_active:
-            return Response ( f'{user.email} is Active , Send to login page ')
+            return Response ( 'user is Active , Send to login page ')
 
         return Response("No, user is inactive")
