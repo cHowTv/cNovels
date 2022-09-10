@@ -326,7 +326,7 @@ class VerifyAccount(APIView):
             user.is_active = True
             user.email_confirmed = True
             user.save()
-            return redirect('verify-success', userid=uid)
+            return redirect(f'https://c-novels-frontend.vercel.app/verify-success/{uid}')
         return Response({
             'message':'Token is invalid or expired. Please request another confirmation email by signing in.'
             }, status=status.HTTP_400_BAD_REQUEST)
