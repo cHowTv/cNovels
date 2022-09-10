@@ -305,7 +305,7 @@ class ProfileViewset(APIView):
 
     
 @method_decorator(name='get', decorator=swagger_auto_schema(
-    responses={301: "redirect to /verified-email-page"}
+    responses={301: "redirect to verified-email-page"}
 ))    
 class VerifyAccount(APIView):
     
@@ -326,14 +326,48 @@ class VerifyAccount(APIView):
             user.is_active = True
             user.email_confirmed = True
             user.save()
-            return redirect('verified-email-page', userid=uid)
-        return Response('Token is invalid or expired. Please request another confirmation email by signing in.', status=status.HTTP_400_BAD_REQUEST)
+            return redirect('verify-success', userid=uid)
+        return Response({
+            'message':'Token is invalid or expired. Please request another confirmation email by signing in.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+class VerifySuccess(APIView):
+    """
+
+    Returns User Id to Query if user has beeen verified
+
+    :return Response 200 Ok 
+    
+    :raise 400
+
+    :param userid
+    
+    """
+    permission_classes = (AllowAny,)
+    my_tags = ["Authentication"]
+
+    def get(self, request, userid=None):
+        if userid:
+            return Response({'userId': userid})
+        return Response({
+            'message': 'Provide user id'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # w
 class VerifyPageView(APIView):
+    """
+
+    Check if user is active or not 
+
+    :param userID
+
+    :return 200 ok, user found or not
+    
+    
+    """
     permission_classes = (AllowAny|IsAuthenticated,)
     my_tags = ["Authentication"]
 
@@ -345,6 +379,10 @@ class VerifyPageView(APIView):
             except Exception:
                 return Response("Check User Id")
         if user.is_active:
-            return Response ( 'user is Active , Send to login page ')
+            return Response ({
+                'message': 'user is Active , Send to login page'
+                })
 
-        return Response("No, user is inactive")
+        return Response({
+            'message':"No, user is inactive"
+            })
