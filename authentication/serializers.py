@@ -92,8 +92,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
         message = render_to_string("email/cbook-update-password.html", data)
              
-        print(message)
-        user.email_user(subject, message)
+        user.email_user(subject, message, html_message=message)
         return user
 
 class InterestSerializers(serializers.Serializer):
