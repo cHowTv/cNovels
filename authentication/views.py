@@ -318,7 +318,7 @@ class VerifyAccount(APIView):
 
     def get(self,request, uidb64, token):
         try:
-            uid = b64decode(uidb64)
+            uid = int(b64decode(uidb64).decode('utf8'))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
