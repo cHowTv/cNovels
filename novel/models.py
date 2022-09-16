@@ -21,8 +21,12 @@ from django.core.validators import FileExtensionValidator
 from django.core.exceptions  import ValidationError
 from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
+from django.core.mail import send_mail
+
+
 valid_file = FileExtensionValidator (allowed_extensions=['pdf', 'doc', 'docx' ])
 valid_image = FileExtensionValidator(allowed_extensions=['jpeg','png', 'jpg'])
+
 
 def get_mime(value):
     mime = magic.Magic(mime=True)
@@ -32,7 +36,7 @@ def get_mime(value):
 
 def valid_size(value):
     filesize = value.size
-    if filesize > 1* 1024 * 1024:
+    if filesize > 1 * 1024 * 1024:
          raise ValidationError('The maximum file size that can be uploaded is 1MB')
     else:
         return value
@@ -316,7 +320,7 @@ class UserIntrest(models.Model):
     timeline = MultiSelectField(choices=MY_CHOICES5, blank=True, max_length=3)
 
 
-from django.core.mail import send_mail
+
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
     favorite = models.ManyToManyField(Novel,blank=True)
@@ -333,7 +337,7 @@ class User(AbstractUser):
         return self.username
 
     def mail_user(self, subject, message) -> None :
-        send_mail(subject,message, "reply.seehowtv@gmail.com" [self.email], fail_silently=False)
+        send_mail(subject, message, "reply.seehowtv@gmail.com" [self.email], fail_silently=False)
 
 #weekly shoutouts , these should be based on "most rated" 
 

@@ -1,10 +1,5 @@
 from base64 import urlsafe_b64encode
-import email
-from email.policy import HTTP
-import inspect
-from os import access
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.response import Response
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
@@ -12,11 +7,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
 from django.utils.encoding import force_bytes
-from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import NotAuthenticated , PermissionDenied
-from rest_framework import status
+from django.template.loader import render_to_string
 
 User = get_user_model()
 
@@ -58,6 +52,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """
+    Register Users 
+    
+    """
     email  =  serializers.EmailField(
         required = True,
         validators= [UniqueValidator(queryset=User.objects.all())]
@@ -85,16 +83,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         confirmation_token = default_token_generator.make_token(user)
-        current_site = get_current_site(self.context["request"])
-        subject = 'Activate Your MySite Account'
+    
+        subject = 'Activate Your cBook Account'
         #actiavation_link = f'{activate_link_url}/user_id={user.i}&confirmation_token={confirmation_token}'
         data = {
-            'verification url': reverse('activate', args=[user.pk, confirmation_token], request=self.context["request"])
+            'user': user,
+            'url': reverse('activate', args=[urlsafe_b64encode(force_bytes(user.pk)).decode('utf8'), confirmation_token], request=self.context["request"])
         }
-        
-        message = f"{user} a {current_site.domain}  and {urlsafe_b64encode(force_bytes(user.pk))} and {data}"
-            
-        
+        message = render_to_string("email/cbook-update-password.html", data)
+             
         print(message)
         user.email_user(subject, message)
         return user

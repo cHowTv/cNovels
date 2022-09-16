@@ -18,5 +18,5 @@ urlpatterns = [
     path('register/' , RegisterView.as_view(), name = 'auth_register'),
     path('reset_password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('author/profile/', ProfileViewset.as_view()),
-    path('activate/<int:uidb64>/<token>/',VerifyAccount.as_view(), name='activate' )
+    path('activate/<str:uidb64>/<token>/',VerifyAccount.as_view(), name='activate' )
 ]

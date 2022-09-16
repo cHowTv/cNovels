@@ -1,4 +1,4 @@
-from base64 import urlsafe_b64decode
+from base64 import b64decode
 from django.http.response import Http404
 from requests import request
 from authentication.permissions import AuthorOrReadOnly
@@ -318,7 +318,7 @@ class VerifyAccount(APIView):
 
     def get(self,request, uidb64, token):
         try:
-            uid = uidb64
+            uid = b64decode(uidb64)
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
