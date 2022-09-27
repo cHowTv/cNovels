@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import GoogleLogin,VerifyAccount,VerifyPageView, MyTokenObtainPairView, ProfileViewset, RegisterView, UserInterestView, VerifySuccess,  logout_user
+from .views import GoogleLogin, ResendMail,VerifyAccount,VerifyPageView, MyTokenObtainPairView, ProfileViewset, RegisterView, UserInterestView, VerifySuccess,  logout_user
 from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -14,9 +14,10 @@ urlpatterns = [
     path("verify/<int:userid>", VerifyPageView.as_view(), name='verified-email-page'),
     path("verify/", VerifyPageView.as_view(), name='verified-email-page'),
     path("verify-success/<int:userid>", VerifySuccess.as_view(), name='verify-success'),
-    path('logout/', logout_user.as_view(), name='logout'),
+    path('logout', logout_user.as_view(), name='logout'),
     path('register/' , RegisterView.as_view(), name = 'auth_register'),
-    path('reset_password/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('reset_password', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('author/profile/', ProfileViewset.as_view()),
-    path('activate/<str:uidb64>/<token>/',VerifyAccount.as_view(), name='activate' )
+    path('activate/<str:uidb64>/<str:token>/',VerifyAccount.as_view(), name='activate' ),
+    path('register/resend', ResendMail.as_view())
 ]

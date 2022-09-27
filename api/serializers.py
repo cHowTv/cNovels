@@ -1,4 +1,3 @@
-from importlib.metadata import files
 from django.contrib import auth
 from django.contrib.auth.models import  Group
 from django.contrib.contenttypes import fields
@@ -79,6 +78,7 @@ class UserNovelSerializer(serializers.ModelSerializer):
         model = UserBook
         exclude = ('user',)
         depth = 2
+
     def update(self, instance, validated_data):
         data = validated_data.pop('state')
         instance.state = data
@@ -95,9 +95,11 @@ class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         exclude = ('user',)
+
     def get_most_popular(self, instance):
         books = instance.profile.all().order_by('ratings')[:20]
         return NovelSerializer(books, many=True).data
+        
     def get_new(self, instance):
         books = instance.profile.all().order_by('date_uploaded')[:20]
         return NovelSerializer(books, many=True).data

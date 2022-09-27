@@ -8,7 +8,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import InterestSerializers, LogOutSerializer, LoginResponseSerializer, MyTokenObtainPairSerializer, ProfileSerializer, RegisterResponseSerializer, RegisterSerializer
+
+from .utiils import verification_email
+from .serializers import EmailSerializer, InterestSerializers, LogOutSerializer, LoginResponseSerializer, MyTokenObtainPairSerializer, ProfileSerializer, RegisterResponseSerializer, RegisterSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -316,7 +318,7 @@ class VerifyAccount(APIView):
     permission_classes = (AllowAny,)
     my_tags = ["Authentication"]
 
-    def get(self,request, uidb64, token):
+    def get(self, request, uidb64, token):
         try:
             uid = int(b64decode(uidb64).decode('utf8'))
             user = User.objects.get(pk=uid)
@@ -386,3 +388,37 @@ class VerifyPageView(APIView):
         return Response({
             'message':"No, user is inactive"
             })
+
+
+class ResendMail(APIView):
+    """
+    Resend Verification Email 
+    
+    """
+    serializer_class = EmailSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        try:
+            serializer = EmailSerializer(data = request.data)
+            serializer.is_valid(raise_exception=True)
+            user = User.objects.get(email = serializer.data['email'])
+
+            if user.email_confirmed:
+                return Response({
+                    'message':'User is already verified'
+                    }, status=status.HTTP_200_OK)
+
+            subject, message = verification_email(user)  
+
+            user.email_user(subject, message, html_message=message)
+
+            return Response({
+            'message': "Check Email For Verification"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({
+            'message': "Invalid Request"
+            }, status=status.HTTP_400_BAD_REQUEST)
+

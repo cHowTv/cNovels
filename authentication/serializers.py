@@ -1,16 +1,17 @@
-from base64 import urlsafe_b64encode
+
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import default_token_generator
+from .utiils import verification_email
+
 from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
-from django.utils.encoding import force_bytes
+
 from django.contrib.sites.shortcuts import get_current_site
-from rest_framework.reverse import reverse
+
 from rest_framework.exceptions import NotAuthenticated , PermissionDenied
-from django.template.loader import render_to_string
+
 
 User = get_user_model()
 
@@ -39,9 +40,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             return super().validate(credentials)
 
         elif user and user.check_password(credentials['password']) and not verified:
-            # Resend verification Email
+            # Resend verification Email, generate another token and send
             
-            raise NotAuthenticated(detail = 'Email not verified')
+            raise NotAuthenticated(detail = 'Email not verified, Redirect to resend email page')
         else:
             # print(inspect.getfullargspec(NotFound))
             raise PermissionDenied(detail='No active account found with the given credentials')
@@ -82,16 +83,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.is_active = False
         user.save()
-        confirmation_token = default_token_generator.make_token(user)
-    
-        subject = 'Activate Your cBook Account'
-        #actiavation_link = f'{activate_link_url}/user_id={user.i}&confirmation_token={confirmation_token}'
-        data = {
-            'user': user,
-            'url': reverse('activate', args=[urlsafe_b64encode(force_bytes(user.pk)).decode('utf8'), confirmation_token], request=self.context["request"])
-        }
-        message = render_to_string("email/cbook-update-password.html", data)
-             
+        subject, message = verification_email(user)    
         user.email_user(subject, message, html_message=message)
         return user
 
@@ -132,4 +124,7 @@ class LoginResponseSerializer(serializers.Serializer):
 
 class RegisterResponseSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=200)
-    email = serializers.CharField(max_length=200)
+    email = serializers.EmailField()
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(required = True)
