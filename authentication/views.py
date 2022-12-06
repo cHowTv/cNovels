@@ -1,8 +1,7 @@
 from base64 import b64decode
 from django.http.response import Http404
-from requests import request
 from authentication.permissions import AuthorOrReadOnly
-from rest_framework import generics, serializers, status, parsers, viewsets
+from rest_framework import generics, status, parsers
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -14,21 +13,12 @@ from .serializers import EmailSerializer, InterestSerializers, LogOutSerializer,
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from django.conf import settings
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse_lazy
-from django.views.generic import View, UpdateView
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required , user_passes_test
-from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.encoding import force_bytes
+from django.shortcuts import get_object_or_404, redirect
 from novel.models import UserIntrest, Profile
 from django.contrib.auth import get_user_model
-from django.http import HttpResponseForbidden
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
-from django.utils.encoding import force_str
+
 User = get_user_model()
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
@@ -39,6 +29,8 @@ from django_rest_passwordreset.signals import reset_password_token_created
 from novel.responses import  ProductXcodeAutoSchema
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.decorators import method_decorator
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, extend_schema_serializer
+from drf_spectacular.types import OpenApiTypes
 
 
 
@@ -48,12 +40,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     """
     Handles password reset tokens
     When a token is created, an e-mail needs to be sent to the user
-    :param sender: View Class that sent the signal
-    :param instance: View Instance that sent the signal
-    :param reset_password_token: Token Model Object
-    :param args:
-    :param kwargs:
-    :return:
+  
     """
     # send an e-mail to the user
     context = {
@@ -83,85 +70,6 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     msg.send()
 
 
-# # Create your views here.
-# def register(request):
-
-#  #   if request.user is not None and request.user.is_authenticated:
-#  #       return render(request,"bookshy/index.html")
-#     errors = None
-#     if request.method =='POST':
-#         form = SignUpForm(request.POST)
-      
-        
-#         if form.is_valid() and form.clean_email() and form.clean_password():
-#             ola = form.save(commit=False) #dont save yet i want to change some params
-#             ola.is_active = False
-#             ola.save()#okay go ahead and save
-#             current_site = get_current_site(request)
-#             subject = 'Activate Your MySite Account'
-#             message = render_to_string('emails/account_activation_email.html', {
-#                 'user': user,
-#                 'domain': current_site.domain,
-#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-#                 'token': account_activation_token.make_token(user),
-#             })
-#             user.email_user(subject, message)
-
-#             messages.success(request, ('Please Confirm your email to complete registration.')) 
-#         errors = form.errors
-#     form = SignUpForm() 
-#     context = {
-#         'form':form,
-#         'errors': errors
-#     }  
-   
-#     return render(request,"bookshy/register.html",context)
-
-
-
-# def activateAccount(request,uidb64, token):
-#     if request.GET:
-#         try:
-#             uid = force_text(urlsafe_base64_decode(uidb64))
-#             user = User.objects.get(pk=uid)
-#         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-#              user = None
-
-#         if user is not None and account_activation_token.check_token(user, token):
-#             user.is_active = True
-#             user.email_confirmed = True
-#             user.save()
-#             login(request, user)
-#             messages.success(request, ('Your account have been confirmed.'))
-#             return redirect('home')
-#         else:
-#             messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
-#             return redirect('home')
-
-
-# def login_view(request):
-#     form = LoginForm(request.POST or None)
-
-#     msg = None
-   
-#     if request.method == "POST":
-
-#         if form.is_valid():
-#             username = form.cleaned_data.get("username")
-#             password = form.cleaned_data.get("password")
-#             user = authenticate(username=username, password=password)
-            
-#             if user is not None:
-#                 login(request, user)
- 
-#                 return redirect("/home")
-#             else:    
-#                 msg = 'Invalid credentials'    
-#         else:
-#             msg = 'Error validating the form'    
-
-#     return render(request, "bookshy/login.html", {"form": form, "msg" : msg})
-
 
 @method_decorator(name='post', decorator=swagger_auto_schema(
     responses={200: LogOutSerializer}
@@ -189,9 +97,9 @@ class logout_user(APIView):
         return Response({"status": "OK, goodbye"}, status= status.HTTP_401_UNAUTHORIZED)
 
 
-@method_decorator(name='post', decorator=swagger_auto_schema(
-    responses={200: LoginResponseSerializer()}
-))
+@extend_schema(
+        responses={201: LoginResponseSerializer},
+    )
 class MyTokenObtainPairView(TokenObtainPairView):
     """
     login by sending a post request containing username and password to login/
@@ -203,19 +111,15 @@ class MyTokenObtainPairView(TokenObtainPairView):
     my_tags = ["Authentication"]
 
 
-
-@method_decorator(name='post', decorator=swagger_auto_schema(
-    responses={200: RegisterResponseSerializer}
-))
+@extend_schema(
+        responses={201: RegisterResponseSerializer},
+    )
 class RegisterView(generics.CreateAPIView):
     
     """
-
     Register with your username, email and password,
     User Wont be able to log in until after verification.
-    Send User To Confirm page view
-    # Work on resending mail
-    
+    Send User To Confirm page view       
     """
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
@@ -233,12 +137,7 @@ class GoogleLogin(SocialLoginView):
 
 
 # create user interest
-@method_decorator(name='post', decorator=swagger_auto_schema(
-    responses={200: InterestSerializers}
-))
-@method_decorator(name='get', decorator=swagger_auto_schema(
-    responses={200: InterestSerializers}
-))
+
 class UserInterestView(APIView):
     """
     Allows Users to Add interest by using the post request,
@@ -251,19 +150,29 @@ class UserInterestView(APIView):
 
     def get_object(self):
         try:
-            intrest = UserIntrest.objects.get(user=self.request.user)
+            intrest: str = UserIntrest.objects.get(user=self.request.user)
         except:
             raise Http404
         return intrest
+
+    @extend_schema(
+        responses={200: InterestSerializers},
+    )
     def get(self, request):
-        intrests = self.get_object()
+        """
+        Returns user's interest
+        """
+        intrests: str = self.get_object()
         # serialize the intrests
         serializer = InterestSerializers(intrests)
         return Response(serializer.data)
-
+    
+    @extend_schema(
+        responses={201: InterestSerializers},
+    )
     def post(self, request):
         # pass request to verify if user already posted
-        serializer = InterestSerializers(data=request.data,context={'request': request})
+        serializer = InterestSerializers(data=request.data, context={'request': request})
         if serializer.is_valid():
             user = request.user
             serializer.save(user = user)
@@ -401,13 +310,13 @@ class ResendMail(APIView):
     def post(self, request):
         try:
             serializer = EmailSerializer(data = request.data)
-            serializer.is_valid(raise_exception=True)
+            serializer.is_valid(raise_exception = True)
             user = User.objects.get(email = serializer.data['email'])
 
             if user.email_confirmed:
                 return Response({
                     'message':'User is already verified'
-                    }, status=status.HTTP_200_OK)
+                    }, status=status.HTTP_200_OK )
 
             subject, message = verification_email(user)  
 
@@ -416,8 +325,9 @@ class ResendMail(APIView):
             return Response({
             'message': "Check Email For Verification"
             }, status=status.HTTP_200_OK)
+
         except Exception as e:
-            print(e)
+            
             return Response({
             'message': "Invalid Request"
             }, status=status.HTTP_400_BAD_REQUEST)

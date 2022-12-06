@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'novel',
-    "drf_yasg",
     'ckeditor',
     'star_ratings',
     'corsheaders',
@@ -59,7 +58,8 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "dj_rest_auth.registration",
     "allauth.socialaccount",
-     'django_rest_passwordreset',
+    'drf_spectacular',
+    'django_rest_passwordreset',
     'rest_framework_simplejwt.token_blacklist',
    "allauth.socialaccount.providers.google",
 ]
@@ -161,6 +161,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT =  os.path.join(BASE_DIR, 'novel/static')
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
        #  'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',

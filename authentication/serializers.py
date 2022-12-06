@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .utiils import verification_email
-
+from drf_spectacular.utils import extend_schema_serializer , OpenApiExample
 from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -14,6 +14,23 @@ from rest_framework.exceptions import NotAuthenticated , PermissionDenied
 
 
 User = get_user_model()
+
+
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Login EndPoint',
+            description='Login ',
+            value={
+                
+                'email': "ola@gmail.com",
+                'password': 'dumbass'
+            },
+            request_only=True,
+            response_only=False,
+        ),
+    ],    
+)
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -50,8 +67,23 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             
 
 
-    
 
+
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Registration EndPoint',
+            description='Create an account',
+            value={
+                'username': 'proflamyt',
+                'email': "ola@gmail.com",
+                'password': 'dumbass'
+            },
+            request_only=True,
+            response_only=False,
+        ),
+    ],    
+)
 class RegisterSerializer(serializers.ModelSerializer):
     """
     Register Users 
@@ -59,7 +91,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     """
     email  =  serializers.EmailField(
         required = True,
-        validators= [UniqueValidator(queryset=User.objects.all())]
+        validators= [UniqueValidator(queryset=User.objects.all())],
     )
     password = serializers.CharField(
         write_only = True,
@@ -87,6 +119,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.email_user(subject, message, html_message=message)
         return user
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Registration EndPoint',
+            description='Create an account',
+            value={
+                'hobbies': 'proflamyt',
+                'genre': "ola@gmail.com",
+                'language': 'dumbass',
+                'profile': "",
+                'timeline': ''
+            },
+            request_only=True,
+            response_only=False,
+        ),
+    ],    
+)
 class InterestSerializers(serializers.Serializer):
     hobbies = serializers.MultipleChoiceField(
                         choices = MY_CHOICES)
