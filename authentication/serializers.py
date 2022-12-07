@@ -4,9 +4,11 @@ from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+
+from cHowTVbooks.novel.models import MY_CHOICES6, MY_CHOICES7
 from .utiils import verification_email
 from drf_spectacular.utils import extend_schema_serializer , OpenApiExample
-from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES, MY_CHOICES2, MY_CHOICES3
+from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES1, MY_CHOICES2, MY_CHOICES3
 
 from django.contrib.sites.shortcuts import get_current_site
 
@@ -125,11 +127,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             'Registration EndPoint',
             description='Create an account',
             value={
-                'hobbies': 'proflamyt',
-                'genre': "ola@gmail.com",
-                'language': 'dumbass',
-                'profile': "",
-                'timeline': ''
+                'hobbies': [1],
+                'genre': [1],
+                'language': [1],
+                'profile':[1, 2],
+                'timeline': [2,2]
             },
             request_only=True,
             response_only=False,
@@ -138,7 +140,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 )
 class InterestSerializers(serializers.Serializer):
     hobbies = serializers.MultipleChoiceField(
-                        choices = MY_CHOICES)
+                        choices = MY_CHOICES1)
     genre = serializers.MultipleChoiceField(
                         choices = MY_CHOICES2)
     language = serializers.MultipleChoiceField(
@@ -147,6 +149,14 @@ class InterestSerializers(serializers.Serializer):
                         choices = MY_CHOICES4)
     timeline = serializers.MultipleChoiceField(
                         choices = MY_CHOICES5)
+    identity = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES6
+    )
+    faith = serializers.MultipleChoiceField(
+                        choices = MY_CHOICES7
+    )
+
+    
 
     
 
@@ -163,7 +173,22 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         exclude = ('user',)
 
-
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            'Registration EndPoint',
+            description='Create an account',
+            value={
+                "all-token" : True 
+            },
+            value = {
+                'refresh_token': " jhbjkxcjknjk.bjknj-njnjkd"
+            },
+            request_only=True,
+            response_only=False,
+        ),
+    ],    
+)
 class LogOutSerializer(serializers.Serializer):
     clear_all_token = serializers.BooleanField() 
 
