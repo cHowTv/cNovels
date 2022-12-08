@@ -86,7 +86,7 @@ class logout_user(APIView):
     my_tags = ["Authentication"]
     
     def post(self, request, *args, **kwargs):
-        if self.request.data.get('clear_all_token'):
+        if self.request.data.get('clear_all_token') :
             token: OutstandingToken
             for token in OutstandingToken.objects.filter(user=request.user):
                 _, _ = BlacklistedToken.objects.get_or_create(token=token)
