@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'novel',
+    'user',
+    'api',
+    'author',
     'ckeditor',
     'star_ratings',
     'corsheaders',
@@ -96,7 +99,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cHowTVbooks.wsgi.application'
 
-AUTH_USER_MODEL = 'novel.User'
+AUTH_USER_MODEL = 'user.User'
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -221,7 +224,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
 SIMPLE_JWT = {
-        'AUTH_HEADER_TYPES': ('JWT',),
+        
         'REFRESH_TOKEN_LIFETIME':   timedelta(days=15),
         'ROTATE_REFRESH_TOKENS': True,
         'BLACKLIST_AFTER_ROTATION': True, 

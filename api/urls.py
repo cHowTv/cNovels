@@ -24,7 +24,7 @@ urlpatterns = [
     path('book_status',BookStatusUpdate.as_view()),
     path('book_status/<slug:book>',BookStatusUpdate.as_view()),
     path('author/<int:pk>', AuthorView.as_view()),
-    path('current_user',CurrentUser.as_view()),
+    path('me',CurrentUser.as_view()),
     path('upload_book', CreateBook.as_view())
 ]
 

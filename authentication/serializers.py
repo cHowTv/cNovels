@@ -40,6 +40,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
         token['username'] = user.username
         token['interest'] = user.has_interest
+        token['is_reader'] = user.is_author
         return token
 
     def validate(self, attrs):
@@ -48,9 +49,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             'password': attrs.get("password")
         }
 
-        user = User.objects.filter(username=attrs.get("username")).first()
+        user = User.objects.filter(username = attrs.get("username")).first()
         try:
-            verified = user.email_confirmed or user.is_active
+            verified = user.email_confirmed and user.is_active
         except: 
             verified = False
 
@@ -64,7 +65,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise NotAuthenticated(detail = 'Email not verified, Redirect to resend email page')
         else:
             # print(inspect.getfullargspec(NotFound))
-            raise PermissionDenied(detail='No active account found with the given credentials', code=403)
+            raise PermissionDenied(detail='No active account found with the given credentials')
        
             
 
@@ -93,7 +94,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     """
     email  =  serializers.EmailField(
         required = True,
-        validators= [UniqueValidator(queryset=User.objects.all())],
+        validators= [ UniqueValidator(queryset = User.objects.all()) ],
     )
     password = serializers.CharField(
         write_only = True,
@@ -118,8 +119,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         subject, message = verification_email(user)    
-        user.email_user(subject, message, html_message=message)
+        user.email_user(subject, message, html_message = message)
         return user
+
+
 
 @extend_schema_serializer(
     examples=[
@@ -156,10 +159,6 @@ class InterestSerializers(serializers.Serializer):
                         choices = MY_CHOICES7
     )
 
-    
-
-    
-
     def create(self, validated_data):
         if self.context["request"].user.has_interest:
             raise serializers.ValidationError("User Already Registered Intrest.")
@@ -167,11 +166,15 @@ class InterestSerializers(serializers.Serializer):
         return user_attributes
 
 
+
 class ProfileSerializer(serializers.ModelSerializer):
  
     class Meta:
         model = Profile
         exclude = ('user',)
+
+
+
 
 @extend_schema_serializer(
     examples=[
@@ -190,13 +193,19 @@ class ProfileSerializer(serializers.ModelSerializer):
 class LogOutSerializer(serializers.Serializer):
     clear_all_token = serializers.BooleanField() 
 
+
+
 class LoginResponseSerializer(serializers.Serializer):
     refresh = serializers.CharField(max_length=200)
     access =  serializers.CharField(max_length=200)
 
+
+
 class RegisterResponseSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=200)
     email = serializers.EmailField()
+
+
 
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField(required = True)

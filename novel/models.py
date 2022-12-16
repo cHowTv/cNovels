@@ -8,15 +8,14 @@ from django.conf import settings
 from django.urls import reverse
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
-from PIL import Image
-import magic
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.fields import GenericRelation
 from rest_framework.exceptions import bad_request
 from star_ratings.models import Rating
 import sys
 from django.utils.text import slugify
-from io import BytesIO
+
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
@@ -24,53 +23,8 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
 from django.core.mail import send_mail
 
+from .utils.utils import *
 
-valid_file = FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
-valid_image = FileExtensionValidator(allowed_extensions=['jpeg', 'png', 'jpg'])
-
-
-def get_mime(value):
-    mime = magic.Magic(mime=True)
-    mimetype = mime.from_buffer(value.read(2048))
-    value.seek(0)
-    return mimetype
-
-
-def valid_size(value):
-    filesize = value.size
-    if filesize > 1 * 1024 * 1024:
-        raise ValidationError(
-            'The maximum file size that can be uploaded is 1MB')
-    else:
-        return value
-
-
-def valid_image_mimetype(value):
-    mimetype = get_mime(value)
-    if mimetype.startswith('image'):
-        return value
-    else:
-        raise ValidationError('This Field accept only image')
-
-
-def valid_pdf_mimetype(value):
-    mimetype = get_mime(value)
-    if 'pdf' or 'msword' or 'document' in mimetype:
-        return value
-    else:
-        return ValidationError('This Field accept only book format')
-
-
-def compress(bookImage):
-    im = Image.open(bookImage)
-    im_io = BytesIO()
-    im = im.resize((179, 209))
-    im = im.convert('RGB')
-    im.save(im_io, 'JPEG', quality=90)
-    im_io.seek(0)
-    bookImage = InMemoryUploadedFile(im_io, 'ImageField', '%s.jpg' % bookImage.name.split(
-        '.')[0], 'image/jpeg', sys.getsizeof(im_io), None)
-    return bookImage
 
 
 # Create your models here.
@@ -154,7 +108,7 @@ class Novel(models.Model):
 
 class Poems(models.Model):
     title = models.CharField(
-        max_length=200, blank=True, unique=True, null=True)
+        max_length=200, blank = True, unique=True, null=True)
 
     slug = models.SlugField(max_length=200, unique=True)
 
@@ -192,26 +146,6 @@ class Poems(models.Model):
         return f"{self.title}"
 
 
-# Author's profile
-class Profile(models.Model):
-    authorName = models.CharField(max_length=200)
-
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    profile_image = models.ImageField(
-        blank=True, upload_to='profile/images', validators=[valid_image, valid_image_mimetype, valid_size])
-
-    about_me = models.TextField(blank=True, null=True)
-
-    country = models.CharField(max_length=30, null=True)
-
-    genre = models.ManyToManyField(Genre)
-
-    twitter = models.CharField(max_length=30, null=True)
-
-    def __str__(self):
-        return f"{self.user}"
 
 
 class UserBook(models.Model):
@@ -280,99 +214,6 @@ class Audio(models.Model):
 
 # Extends User model
 
-# ...
-
-MY_CHOICES1 = ((1, 'Traveling'),
-               (2, 'Reading'),
-               (3, 'Singing'),
-               (4, 'Dancing'),
-               (5, 'Movies'))
-
-MY_CHOICES2 = ((1, 'Action'),
-               (2, 'Adventure'),
-               (3, 'Comedy'),
-               (4, 'Romance'),
-               (5, 'Fantasy'))
-
-MY_CHOICES3 = (
-    (1, 'Spanish'),
-    (2, 'English'),
-    (3, 'Yoruba'))
-
-MY_CHOICES4 = (
-    (1, 'Author'),
-    (2, 'Reader')
-)
-MY_CHOICES5 = (
-    (1, 'Medieval'),
-    (2, 'Cyberpunk'),
-    (3, 'Iceage'),
-    (4, 'Ile-ife dynasty'),
-    (5, 'Neolitic'),
-    (6, 'Northern Caliphate'),
-    (7, 'Paleolithic')
-)
-MY_CHOICES6 = (
-    (1, 'Women'),
-    (2, 'Men'),
-    (3, 'GenZ'),
-    (4, 'Ile-ife dynasty'),
-    (5, 'Neolitic'),
-    (6, 'Northern Caliphate'),
-    (7, 'Paleolithic')
-)
-MY_CHOICES7 = (
-    (1, 'Christain'),
-    (2, 'Muslim'),
-    (3, 'Judaism'),
-    (4, 'Ile-ife dynasty'),
-    (5, 'Neolitic'),
-    (6, 'Northern Caliphate'),
-    (7, 'Paleolithic')
-)
-
-
-class UserIntrest(models.Model):
-    user = models.OneToOneField('User', on_delete=models.CharField)
-    hobbies = MultiSelectField(choices=MY_CHOICES1, max_choices=3, blank=True)
-    genre = MultiSelectField(choices=MY_CHOICES2, blank=True,
-                             max_length=3)
-    profile = MultiSelectField(choices=MY_CHOICES4, blank=False, max_choices=1)
-    language = MultiSelectField(choices=MY_CHOICES3, blank=True,
-                                max_length=3)
-    history = MultiSelectField(choices=MY_CHOICES5, blank=True, max_length=3)
-    identity = MultiSelectField(choices=MY_CHOICES6, blank=True,
-                                max_choices=3,
-                                max_length=3)
-    faith = MultiSelectField(choices=MY_CHOICES7, blank=True,
-                                max_choices=3,
-                                max_length=3)
-
-
-class User(AbstractUser):
-    email_confirmed = models.BooleanField(default=False)
-    favorite = models.ManyToManyField(Novel, blank=True)
-    saved_novels = models.ManyToManyField(
-        Novel, blank=True,  related_name='saved_novel')
-    saved_audios = models.ManyToManyField(
-        Audio, blank=True,  related_name='saved_audios')
-    recently_viewed_chapters = models.ManyToManyField(
-        Chapters, blank=True, related_name='recently_viewed_chapters')
-    recently_viewed_audios = models.ManyToManyField(
-        Audio, blank=True,  related_name='recently_viewed_audios')
-    saved_poems = models.ManyToManyField(
-        Poems, blank=True, related_name='saved_poems')
-    last_searched = models.CharField(
-        max_length=200, blank=True, unique=True, null=True)
-    is_author = models.BooleanField(default=False)
-    has_interest = models.BooleanField(default=False)
-
-    def __str__(self) -> str:
-        return self.username
-
-    def mail_user(self, subject: str, message: str, html_message: str = None) -> None:
-        send_mail(subject, message,  "reply.seehowtv@gmail.com" [
-                  self.email], fail_silently=False, html_message=html_message)
 
 # weekly shoutouts , these should be based on "most rated"
 
