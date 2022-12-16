@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from cHowTVbooks.novel.models import MY_CHOICES6, MY_CHOICES7
+from novel.models import MY_CHOICES6, MY_CHOICES7
 from .utiils import verification_email
 from drf_spectacular.utils import extend_schema_serializer , OpenApiExample
 from novel.models import MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES1, MY_CHOICES2, MY_CHOICES3
@@ -64,7 +64,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             raise NotAuthenticated(detail = 'Email not verified, Redirect to resend email page')
         else:
             # print(inspect.getfullargspec(NotFound))
-            raise PermissionDenied(detail='No active account found with the given credentials')
+            raise PermissionDenied(detail='No active account found with the given credentials', code=403)
        
             
 
@@ -178,9 +178,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         OpenApiExample(
             'Registration EndPoint',
             description='Create an account',
-            value={
-                "all-token" : True 
-            },
+            
             value = {
                 'refresh_token': " jhbjkxcjknjk.bjknj-njnjkd"
             },

@@ -176,11 +176,11 @@ class ReadChapter(APIView):
     def get_object(self, book):
         try:
             novel = Novel.objects.get(slug=book)
-            ola , created = UserBook.objects.get_or_create(user=self.request.user,book=novel)
+            ola , _ = UserBook.objects.get_or_create(user=self.request.user, book=novel)
             return novel
         except Novel.DoesNotExist:
             raise Http404
-    def get(self, request, book, pk=None,format=None ):
+    def get(self, request, book, pk=None, format=None ):
         #change bookstatus
         
         book = self.get_object(book)
