@@ -23,6 +23,8 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
 from django.core.mail import send_mail
 
+from user.models import *
+
 from .utils.utils import *
 
 
@@ -60,28 +62,23 @@ class Novel(models.Model):
         max_length=200, blank=True, unique=True, null=True)
 
     slug = models.SlugField(max_length=200, unique=True)
-    # Foreign Key used because book can only have one author, but authors can have multiple books
-    # Author as a string rather than object because it hasn't been declared yet in the file
+
+
     author = models.ForeignKey(
-        'Profile', related_name='profile', on_delete=models.SET_NULL, blank=True, null=True)
+        'user.Profile', related_name='profile', on_delete=models.SET_NULL, blank=True, null=True)
 
     premium = models.BooleanField(default=False)
 
-    # Summary of the book
+
     summary = RichTextField()
 
     isbn = models.CharField(max_length=13, unique=True, null=True, blank=True,
                             help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn"> ISBN number </a>')
 
-# ManyToManyField used because genre can contain many books. EBooks can cover many genres.
-# Genre class has already been defined so we can specify the object above.
     genre = models.ManyToManyField(
         Genre, help_text='Select multiple genres for this book')
 
-    # if authors were to upload books if already written
-    # will be parsed and restored into chapters later
-    #bookFile = models.FileField(blank=True,upload_to='book_files/' , validators= [valid_file,valid_pdf_mimetype,valid_size],null=False)
-
+ 
     date_uploaded = models.DateTimeField(
         null=False, blank=False, auto_now_add=True)
 
@@ -112,22 +109,20 @@ class Poems(models.Model):
 
     slug = models.SlugField(max_length=200, unique=True)
 
-    # Foreign Key used because book can only have one author, but authors can have multiple books
-    # Author as a string rather than object because it hasn't been declared yet in the file
+
     author = models.ForeignKey(
-        'Profile', on_delete=models.SET_NULL, blank=True, null=True)
+        'user.Profile', on_delete=models.SET_NULL, blank=True, null=True)
 
     premium = models.BooleanField(default=False)
 
     isbn = models.CharField(max_length=13, unique=True, null=True, blank=True,
                             help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn"> ISBN number </a>')
 
-    # if authors were to upload books if already written
-    # will be parsed and restored into chapters later
+
     bookFile = models.FileField(blank=True, upload_to='book_files/',
                                 validators=[valid_file, valid_pdf_mimetype, valid_size])
 
-    # if authors were to write instead of upload
+    
     story = RichTextField(config_name='novellas')
 
     date_uploaded = models.DateTimeField(
@@ -173,7 +168,7 @@ class Audio(models.Model):
 # Foreign Key used because book can only have one author, but authors can have multiple books
 # Author as a string rather than object because it hasn't been declared yet in the file
     author = models.ForeignKey(
-        'Profile', on_delete=models.SET_NULL, blank=True, null=True)
+        'user.Profile', on_delete=models.SET_NULL, blank=True, null=True)
 
     premium = models.BooleanField(default=False)
 
@@ -212,11 +207,6 @@ class Audio(models.Model):
         return f"{self.title}"
 
 
-# Extends User model
-
-
-# weekly shoutouts , these should be based on "most rated"
-
 
 class Weekly(models.Model):
     weekly_featured_novels = models.ManyToManyField(
@@ -234,51 +224,3 @@ class Weekly(models.Model):
         return f"{self.weekly_featured_novels}"
 
 
-class Room(models.Model):
-    creator = models.ForeignKey(
-        User, null=True, blank=True, on_delete=models.CASCADE)
-    admins = models.ManyToManyField(User, related_name='admins')
-    name = models.CharField(max_length=100, unique=True)
-    discription = models.TextField()
-    private = models.BooleanField(default=False)
-
-
-class RoomMessage(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    message = models.CharField(max_length=200)
-    date = models.DateField()
-
-
-class Message(models.Model):
-    sender = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='sender')
-    receiver = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='receiver')
-    message = models.CharField(max_length=1200)
-    timestamp = models.DateTimeField(
-        null=False, blank=False, auto_now_add=True)
-    is_read = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.message
-
-    class Meta:
-        ordering = ('timestamp',)
-
-
-class Event(models.Model):
-    name = models.CharField(max_length=100)
-    time = models.DateTimeField(null=False, blank=False)
-
-    def __str__(self):
-        return self.name
-
-
-class GroupChat(models.Model):
-    citizens = models.ManyToManyField(User)
-    room = models.OneToOneField(Room, on_delete=models.CASCADE)
-    event = models.ForeignKey(
-        Event, null=True, blank=True, on_delete=models.SET_NULL)
-
-    def __str__(self):
-        return f'group {self.room.name}'

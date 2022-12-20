@@ -5,9 +5,13 @@ from django.contrib import admin
 
 from django.contrib.auth.admin import UserAdmin
 
+from api.models import Event, Message, Room, GroupChat
+
+from user.models import Profile, UserIntrest, User
 
 
-from .models import Audio, Chapters, Event, Genre, GroupChat, Message, Novel, Poems, Profile, Room, User, UserIntrest, Weekly, UserBook
+
+from .models import Audio, Chapters, Genre, Novel, Poems, Weekly, UserBook
 
 admin.site.register(User)
 admin.site.register(Weekly)

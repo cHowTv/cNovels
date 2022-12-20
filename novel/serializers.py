@@ -1,100 +1,172 @@
-from django.contrib.auth import get_user_model
+
+from django.contrib import auth
+from django.contrib.auth.models import  Group
 from django.contrib.contenttypes import fields
-from django.db import models
+from django_filters.rest_framework import filters
 from rest_framework import serializers
-from .models import GroupChat,  Message, Room
+from django.contrib.auth import get_user_model
+from novel.models import *
+from django.db.models import Sum 
+from user.models import Profile
 
 
 User = get_user_model()
-class MessageSerializer(serializers.ModelSerializer):
-    """For Serializing Message"""
-    sender = serializers.SlugRelatedField(many=False,slug_field='username', queryset=User.objects.all())
-    receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=User.objects.all())
-    class Meta:
-        model = Message
-        fields = ['sender', 'receiver', 'message', 'timestamp']
 
-class CitizenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username']
+
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        exclude = (
-            'password', 'last_login', 'is_superuser', 'email',
-             'is_active',
-            'is_staff', 'groups', 'user_permissions'
-        )
-        extra_kwargs = {
-            # For security to hide the password (we can't read it)
-            'password': {'write_only': True},
-        }
+        fields = ["username", "email", "last_searched", "saved_novels", "favorite"]
 
-class RoomSerializer(serializers.ModelSerializer):
-    creator = CitizenSerializer(read_only=True)
-    admins = CitizenSerializer(many=True, read_only=True)
+
+
+
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Room
-        fields = '__all__'
-        depth= 2
+        model = Group
+        fields = ['url', 'name']
 
 
 
-class GroupSerializer(serializers.ModelSerializer):
-    citizens = CitizenSerializer(many=True)
-    room = RoomSerializer()
+
+class NovelAuthorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GroupChat
+        model = Profile
+        fields = ['authorName', 'country']
+
+class NovelSerializer(serializers.ModelSerializer):
+    author =  NovelAuthorSerializer(read_only=True)
+    #ratings = GernericSerializer(read_only=True)
+    readers_num = serializers.IntegerField(read_only=True)
+    slug = serializers.SlugField(read_only=True)
+    date_uploaded = serializers.DateTimeField(read_only=True)
+
+    def __init__(self, *args, **kwargs):
+        # Don't pass the 'fields' arg up to the superclass
+        fields = kwargs.pop('context', None)
+        # Instantiate the superclass normally
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+    class Meta:
+        model = Novel
+        exclude = ('created_author', 'id')
+        
+
+class AudioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
+        exclude= ['bookFile',]
+
+class PoemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Poems
+        exclude =  [ 'story']
+
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapters
         fields = '__all__'
+
+class UserNovelSerializer(serializers.ModelSerializer):
+    book = NovelSerializer(read_only=True)
+    class Meta:
+        model = UserBook
+        exclude = ('user',)
         depth = 2
+
+    def update(self, instance, validated_data):
+        data = validated_data.pop('state')
+        instance.state = data
+        instance.save()
+        return instance
         
-# class LocationSerializer(GeoFeatureModelSerializer):
-#     """ A class to serialize locations as GeoJSON compatible data """
 
-#     class Meta:
-#         model = MapPoint
-#         geo_field = "coord"
-
-#         # you can also explicitly declare which fields you want to include
-#         # as with a ModelSerializer.
-#         fields = '__all__'
-        
-# class MapSerializer(serializers.ModelSerializer):
-#     point = LocationSerializer()
-#     class Meta:
-#         models = NovelMap
-#         fields = '__all__'
-
-
-
-
-class RoomJoinSerializer(serializers.ModelSerializer):
+class AuthorSerializer(serializers.ModelSerializer):
+    most_popular = serializers.SerializerMethodField()
+    new = serializers.SerializerMethodField()
+    total_books = serializers.SerializerMethodField()
+    total_readers = serializers.SerializerMethodField()
+    #user =  UserSerializer()
     class Meta:
-        model = Room
-        fields = ['name']
+        model = Profile
+        exclude = ('user',)
 
-
-
-# class JoinGroupSerializer(serializers.ModelSerializer):
-#     room = RoomSerializer(write_only=True)
-
-#     class Meta:
-#         model = GroupChat
-#         fields = ['citizens', 'room']
-
-#     def create(self, validated_data):
-#         room = validated_data['room']
-#         user = self.context['request'].user
-#         ola = GroupChat.objects.filter(room=room)
-#         ola.citizens.add(user)
-#         ola.save()
-
-#         return ola
-
-class JoinGroupSerializer(serializers.Serializer):
-    room = serializers.CharField(max_length=200)
-    user = serializers.CharField(max_length=200)
+    def get_most_popular(self, instance):
+        books = instance.profile.all().order_by('ratings')[:20]
+        return NovelSerializer(books, many=True).data
+        
+    def get_new(self, instance):
+        books = instance.profile.all().order_by('date_uploaded')[:20]
+        return NovelSerializer(books, many=True).data
     
+    def get_total_books(self, instance):
+        number = instance.profile.count()
+        return number
+    def get_total_readers(self, instance):
+        readers = instance.profile.all().aggregate(num = Sum('readers_num'))
+        return readers
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['id', 'name']
+        
+class AuthorHomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id' , 'authorName']
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = '__all__'
+
+
+class NovelHomeSerializer(serializers.ModelSerializer):
+    author = AuthorHomeSerializer()
+    ratings = RatingSerializer()
+    class Meta:
+        model = Novel
+        fields = ['id', 'title', 'author', 'ratings', 'bookImage']
+
+class PoemHomeSerializer(serializers.ModelSerializer):
+    author = AuthorHomeSerializer()
+    ratings = RatingSerializer()
+    class Meta:
+        model = Poems
+        fields = ['id', 'title', 'author', 'ratings', 'bookImage']
+
+class AudioHomeSerializer(serializers.ModelSerializer):
+    author = AuthorHomeSerializer()
+    ratings = RatingSerializer()
+    class Meta:
+        model = Audio
+        fields = ['id', 'title', 'author', 'ratings', 'bookImage']
+
+
+
+
+class WeeklySerializer(serializers.ModelSerializer):
+    weekly_featured_novels = NovelHomeSerializer(read_only=True, many=True)
+    weekly_featured_poems = PoemHomeSerializer(read_only=True, many=True)
+    weekly_featured_audios = AudioHomeSerializer(read_only=True, many=True)
+    authors_of_week = AuthorHomeSerializer(read_only=True, many=True)
+    special_feature = NovelHomeSerializer(read_only=True, many=True)
+    class Meta:
+        model = Weekly
+        depth = 1
+        fields = '__all__'
+
+class HomeResponse(serializers.Serializer):
+    genre = GenreSerializer()
+    weekly = WeeklySerializer()
+
+

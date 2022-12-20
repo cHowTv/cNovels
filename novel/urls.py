@@ -1,7 +1,9 @@
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from django.urls import path
-from .views import AddAdminView, GroupCreateAPIView, GroupJoinAPIView, GroupMembersList
+from django import urls
+from django.db import router
+from django.urls import include, path
+from rest_framework import routers
 
 
 
@@ -16,10 +18,7 @@ urlpatterns = [
    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     # ...
-    path('create', GroupCreateAPIView.as_view()),
-    path('join', GroupJoinAPIView.as_view()),
-    path('member-list/<str:room>',GroupMembersList.as_view()),
-    path('add-admin/',AddAdminView.as_view()),
+   
     
     
 

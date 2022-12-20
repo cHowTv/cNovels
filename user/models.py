@@ -2,8 +2,8 @@ from django.db import models
 from django.core.mail import send_mail
 from multiselectfield import MultiSelectField
 from django.conf import settings
-from ..novel.utils.utils import *
-from ..novel.models import Audio, Chapters, Genre, Novel, Poems
+from novel.utils.utils import *
+
 from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
@@ -21,7 +21,7 @@ class Profile(models.Model):
 
     country = models.CharField(max_length=30, null=True)
 
-    genre = models.ManyToManyField(Genre)
+    genre = models.ManyToManyField('novel.Genre')
 
     twitter = models.CharField(max_length=30, null=True)
 
@@ -31,17 +31,17 @@ class Profile(models.Model):
 
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
-    favorite = models.ManyToManyField(Novel, blank=True)
+    favorite = models.ManyToManyField('novel.Novel', blank=True)
     saved_novels = models.ManyToManyField(
-        Novel, blank=True,  related_name='saved_novel')
+        'novel.Novel', blank=True,  related_name='saved_novel')
     saved_audios = models.ManyToManyField(
-        Audio, blank=True,  related_name='saved_audios')
+        'novel.Audio', blank=True,  related_name='saved_audios')
     recently_viewed_chapters = models.ManyToManyField(
-        Chapters, blank=True, related_name='recently_viewed_chapters')
+        'novel.Chapters', blank=True, related_name='recently_viewed_chapters')
     recently_viewed_audios = models.ManyToManyField(
-        Audio, blank=True,  related_name='recently_viewed_audios')
+        'novel.Audio', blank=True,  related_name='recently_viewed_audios')
     saved_poems = models.ManyToManyField(
-        Poems, blank=True, related_name='saved_poems')
+        'novel.Poems', blank=True, related_name='saved_poems')
     last_searched = models.CharField(
         max_length=200, blank=True, unique=True, null=True )
     is_author = models.BooleanField(default=False)
