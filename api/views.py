@@ -1,18 +1,15 @@
 
 
 #Create Group
-from django.db.models import Count
 from django.contrib.auth import get_user_model
-from django.db.models import query
 from django.http.response import Http404
-from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
-from authentication.permissions import AuthorOrReadOnly, GroupOwners, GroupCreator
+from authentication.permissions import GroupOwners, GroupCreator
 from .models import GroupChat, Room, RoomMessage
 from rest_framework.response import Response
 from .serializers import JoinGroupSerializer,  GroupSerializer
 import redis
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status

@@ -18,7 +18,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from .utiils import verification_email
 from .serializers import EmailSerializer, InterestSerializers, LogOutSerializer, LoginResponseSerializer, MyTokenObtainPairSerializer, ProfileSerializer, RegisterResponseSerializer, RegisterSerializer
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
