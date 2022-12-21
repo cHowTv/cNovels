@@ -6,7 +6,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 
-from user.models import MY_CHOICES6, MY_CHOICES7, MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES1, MY_CHOICES2, MY_CHOICES3
+from novel.models import MY_CHOICES6, MY_CHOICES7, MY_CHOICES4, MY_CHOICES5, Profile, UserIntrest, MY_CHOICES1, MY_CHOICES2, MY_CHOICES3
 from .utiils import verification_email
 from drf_spectacular.utils import extend_schema_serializer , OpenApiExample
 

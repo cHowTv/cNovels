@@ -99,7 +99,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cHowTVbooks.wsgi.application'
 
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = 'novel.User'
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases

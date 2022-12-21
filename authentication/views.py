@@ -25,7 +25,7 @@ from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404, redirect
-from user.models import UserIntrest, Profile
+from novel.models import UserIntrest, Profile
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
