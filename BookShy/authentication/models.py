@@ -8,7 +8,7 @@ from authentication.utils.choices import *
 class User(AbstractUser):
     email_confirmed = models.BooleanField(default=False)
 
-    image = models.ImageField()
+    image = models.ImageField(null=True, blank=True)
 
     favorite = models.ManyToManyField('novels.NovelModel', blank=True)
 
