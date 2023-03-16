@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-from datetime import timedelta
 from pathlib import Path
 from os import environ as env
 
@@ -22,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = SECRET_KEY = env.get('SECRET_KEY') or 'django-insecure-1#^$d_q0%ub(g3==v)#92mcs_(9myx+u2@uk^ic_b&6tz#o)(k'
+SECRET_KEY = SECRET_KEY = env['SECRET_KEY'] # 'django-insecure-1#^$d_q0%ub(g3==v)#92mcs_(9myx+u2@uk^ic_b&6tz#o)(k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.get('DEBUG') or True
+DEBUG = env['DEBUG'] or True
 
 ALLOWED_HOSTS = []
 
@@ -39,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
     'authentication',
     'authors',
     'novels'
@@ -75,15 +73,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'BookShy.wsgi.application'
-
-if DEBUG:
-  
-    SIMPLE_JWT = {
-
-        'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50),
-
-    }
-    CORS_ORIGIN_ALLOW_ALL = True
 
 
 # Database
@@ -139,11 +128,3 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authentication.User'
-REST_FRAMEWORK = {
-    
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-    
-}
