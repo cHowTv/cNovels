@@ -4,8 +4,13 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+from base64 import b64decode
+from django.shortcuts import redirect
+from django.contrib.auth import get_user_model, tokens
+
 from .serializers import EmailSerializer, MyTokenObtainPairSerializer, RegisterSerializer, UserInterestSerializer
 
+User = get_user_model()
 
 class MyTokenObtainPairView(TokenObtainPairView):
     """
@@ -33,7 +38,6 @@ class UserInterestView(APIView):
         serializer = UserInterestSerializer(context={'user': request.user}, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            request.user.update(has_interest=True)
             return Response({'status': 'success', 'message': 'interest saved successfully'})
         else:
             return Response({'status': 'error', 'errors': serializer.errors})
@@ -61,3 +65,27 @@ class ResendMail(APIView):
             return Response({
                 'message': "Invalid Request"
             }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class VerifyAccount(APIView):
+
+    """
+    Allows Users To be activated after registration , by clicking link sent to their mail . This is used for email verification.
+    Returns Interest endpoint to continue 
+    """
+    my_tags = ["Authentication"]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = int(b64decode(uidb64).decode('utf8'))
+            user = User.objects.get(pk=uid)
+            if not tokens.default_token_generator.check_token(user, token):
+                raise Exception
+            user.is_active = True
+            user.email_confirmed = True
+            user.save(update_fields=['email_confirmed', 'is_active'])
+            return redirect(f'https://c-novels-frontend.vercel.app/verify-success/{uid}')
+
+        except :
+            return redirect(f'https://c-novels-frontend.vercel.app/verify-failure/{uid}')

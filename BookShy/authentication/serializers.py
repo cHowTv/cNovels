@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
 from .models import UserIntrest
+from .utils.mailer import verification_email
 
 User = get_user_model()
 
@@ -35,9 +36,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserInterestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
-        validated_data['user'] = self.context['user']
-        user_interests = UserIntrest.objects.create(**validated_data)
+        user = self.context["user"]
+        if user.has_interest:
+            raise serializers.ValidationError("User Already Registered Intrest.")
+        user_interests = UserIntrest.objects.create(user=user, **validated_data)
+        user.update(has_interest=True)
         return user_interests
+    
     class Meta:
         model = UserIntrest
         fields = '__all__'
