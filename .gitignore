@@ -1,6 +1,6 @@
 /*.pyc
-./.env
 *.sqlite3
 .env
 *.sqlite3
 novel/migrations/*
+ola/
