@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.filters import SearchFilter
 
-from .utils.filters import NovelFilter
 from .serializers import NovelSerializer, ChapterSerializer
 from .models import NovelModel
 
@@ -57,11 +57,12 @@ class NovelSearchView(APIView):
     """
     Displays all novels with just 'get request' , filters the searches with ?search query ;
     e.g
-     /novel/search?genre=&author= 
+     /novel/search=mkmkmk?genre=&author= 
     
     will return all novel objects relating to ola
     
     """
-
-    def post(self, request):
-        ...
+    queryset = NovelModel.objects.all()
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['genre']
+    search_fields = ['title']
