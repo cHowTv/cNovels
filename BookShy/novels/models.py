@@ -44,9 +44,6 @@ class MapType(models.Model):
 
     def get_absolute_url(self):    
         return reverse('points', args=[str(self.novel_id), str(self.id)])
-    
-    class Meta:
-        unique_together = (('name', 'novel'),)
 
     def __str__(self) -> str:
         return self.name
