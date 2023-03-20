@@ -13,7 +13,7 @@ class NovelModel(models.Model):
     weekly_featured = models.BooleanField(default=False)
     special_featured = models.BooleanField(default=False)
     pubished = models.BooleanField(default=True)
-    map = models.ForeignKey('MapType',on_delete=models.CASCADE, null=True, blank=True)
+    maptype = models.ForeignKey('MapType',on_delete=models.CASCADE, null=True, blank=True)
     date_uploaded = models.DateTimeField(
         null=False, blank=False, auto_now_add=True)
     
@@ -58,9 +58,9 @@ class Marker(models.Model):
     name = models.CharField(max_length=255)
     location = models.PointField()
     claimed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete= models.CASCADE, null=True, blank=True)
-    type  = models.ForeignKey(MapType,blank=True,null=True, on_delete=models.CASCADE)
+    maptype  = models.ForeignKey(MapType,blank=True,null=True, on_delete=models.CASCADE)
     description = models.TextField(null=True, blank=True)
-    novel = models.ForeignKey(ChapterModel,on_delete=models.CASCADE, null=True, blank=True)
+    chapter = models.ForeignKey(ChapterModel,on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         """Return string representation."""
@@ -75,7 +75,7 @@ class Area(models.Model):
     location = PolygonField()
     description = models.TextField()
     claimed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete= models.CASCADE,null=True, blank=True)
-    novel = models.ForeignKey(ChapterModel,on_delete=models.CASCADE, null=True, blank=True)
+    chapter = models.ForeignKey(ChapterModel,on_delete=models.CASCADE, null=True, blank=True)
 
  
 
